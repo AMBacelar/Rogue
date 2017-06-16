@@ -2,15 +2,17 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Map : MonoBehaviour {
+public class Map : MonoBehaviour
+{
 
     public GameObject floorHexPrefab;
     public GameObject wallHexPrefab;
+    public GameObject fillHexPrefab;
 
-    
+
 
     public class MapHandler
-    {        
+    {
         //Size of the map in terms of hex tiles
         public int width;
         public int height;
@@ -19,7 +21,8 @@ public class Map : MonoBehaviour {
         float xOffset = 0.939f;
         float zOffset = 0.814f;
 
-        public int[,] hexGrid;        
+        public int[,] hexGrid;
+        Node[,] graph;
 
         public void MakeCaverns()
         {
@@ -28,6 +31,76 @@ public class Map : MonoBehaviour {
                 for (column = 0; column <= width - 1; column++)
                 {
                     hexGrid[column, row] = PlaceWallLogic(column, row);
+                }
+            }
+            //FLOOD CAVERN HERE
+        }
+
+        class Node
+        {
+            public List<Node> neighbours;
+
+            public Node()
+            {
+                neighbours = new List<Node>();
+            }
+        }
+
+        void nodeGraph()
+        {
+            graph = new Node[width, height];
+            for (int column = 0, row = 0; row <= height - 1; row++)
+            {
+                for (column = 0; column <= width - 1; column++)
+                {
+                    //LEFT
+                    if (column > 0)
+                    {
+                        graph[column, row].neighbours.Add(graph[column - 1, row]);
+                        //ODD ROW LEFT
+                        if (row % 2 == 1)
+                        {
+                            //TOP LEFT TILE
+                            if (row < height - 1)
+                                graph[column, row].neighbours.Add(graph[column, row + 1]);
+                            //BOTTOM LEFT TILE
+                            if (row > 0)
+                                graph[column, row].neighbours.Add(graph[column, row - 1]);
+                        }
+                        else //EVEN ROW LEFT
+                        {
+                            //TOP LEFT TILE
+                            if (row < height - 1)
+                                graph[column, row].neighbours.Add(graph[column - 1, row + 1]);
+                            //BOTTOM LEFT TILE
+                            if (row > 0)
+                                graph[column, row].neighbours.Add(graph[column - 1, row - 1]);
+                        }
+                    }
+                    //RIGHT
+                    if (column < width - 1)
+                    {
+                        graph[column, row].neighbours.Add(graph[column + 1, row]);
+                        //ODD ROW RIGHT
+                        if (row % 2 == 1)
+                        {
+                            //TOP RIGHT TILE
+                            if (row < height - 1)
+                                graph[column, row].neighbours.Add(graph[column + 1, row + 1]);
+                            //BOTTOM RIGHT TILE
+                            if (row > 0)
+                                graph[column, row].neighbours.Add(graph[column + 1, row - 1]);
+                        }
+                        else //EVEN ROW RIGHT
+                        {
+                            //TOP RIGHT TILE
+                            if (row < height - 1)
+                                graph[column, row].neighbours.Add(graph[column, row + 1]);
+                            //BOTTOM RIGHT TILE
+                            if (row > 0)
+                                graph[column, row].neighbours.Add(graph[column, row - 1]);
+                        }
+                    }
                 }
             }
         }
@@ -89,6 +162,7 @@ public class Map : MonoBehaviour {
 
         bool IsWall(int x, int y)
         {
+
             // Consider out-of-bound a wall
             if (IsOutOfBounds(x, y))
             {
@@ -120,11 +194,12 @@ public class Map : MonoBehaviour {
             return false;
         }
 
-        public void loadMap(GameObject wallTile, GameObject floorTile, GameObject parent)
+        public void loadMap(GameObject wallTile, GameObject floorTile, GameObject fillTile, GameObject parent)
         {
             List<GameObject> tileType = new List<GameObject>();
             tileType.Add(floorTile);
             tileType.Add(wallTile);
+            tileType.Add(fillTile);
 
             for (int column = 0, row = 0; row < height; row++)
             {
@@ -140,18 +215,23 @@ public class Map : MonoBehaviour {
 
                     string tileName = "";
 
-                    if(hexGrid[column,row] == 0)
+                    if (hexGrid[column, row] == 0)
                     {
                         tileName = "floorTile_";
-                    } else if (hexGrid[column,row] == 1)
+                    }
+                    else if (hexGrid[column, row] == 1)
                     {
                         tileName = "wallTile_";
+                    }
+                    else if (hexGrid[column, row] == 2)
+                    {
+                        tileName = "fillTile_";
                     }
 
                     hex_go.name = tileName + "Hex_" + column + "_" + row;
 
                     hex_go.transform.SetParent(parent.transform);
-                    
+
                     hex_go.isStatic = true;
                 }
             }
@@ -188,6 +268,7 @@ public class Map : MonoBehaviour {
 
         public void RandomFillMap()
         {
+
             // New, empty map
             hexGrid = new int[width, height];
 
@@ -238,8 +319,28 @@ public class Map : MonoBehaviour {
                 return 1;
             }
             return 0;
-        }        
+        }
     }
+
+    public void floodMap(int[,] mapIn, int x, int y, int fillVal, int boundaryVal)
+    {
+        int curVal;
+
+        if (mapIn[x, y] == 0)
+        {
+            curVal = mapIn[x, y];
+            if (curVal != boundaryVal && curVal != fillVal)
+            {
+                mapIn[x, y] = fillVal;
+                floodMap(mapIn, x + 1, y, fillVal, boundaryVal);
+                floodMap(mapIn, x - 1, y, fillVal, boundaryVal);
+                floodMap(mapIn, x, y + 1, fillVal, boundaryVal);
+                floodMap(mapIn, x, y - 1, fillVal, boundaryVal);
+            }
+        }
+    }
+
+
 
     // Use this for initialization
     void Start()
@@ -247,7 +348,9 @@ public class Map : MonoBehaviour {
         MapHandler Map = new MapHandler();
 
         Map.MakeCaverns();
-        Map.loadMap(wallHexPrefab, floorHexPrefab, this.gameObject);
+        floodMap(Map.hexGrid, Map.width / 2, Map.height / 2, 2, 1);
+        
+        Map.loadMap(wallHexPrefab, floorHexPrefab, fillHexPrefab, this.gameObject);
     }
 
     // Update is called once per frame

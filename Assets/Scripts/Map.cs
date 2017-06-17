@@ -340,17 +340,76 @@ public class Map : MonoBehaviour
         }
     }
 
+    public bool checkFlooding(int[,] floodedMap, int x, int y)
+    {   
+        Dictionary<int, int> tileCount = new Dictionary<int, int>();
 
+        foreach (int value in floodedMap)
+        {
+            if (tileCount.ContainsKey(value))
+                tileCount[value]++;
+            else
+                tileCount.Add(value, 1);
+        }
+        if (tileCount.ContainsKey(2))
+        {
+            int needsToBeMoreThan = ((tileCount[1] + tileCount[0])/5)*3;
+            return (tileCount[2] > needsToBeMoreThan) ? true : false;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
-    // Use this for initialization
-    void Start()
+    public void drainMap (int[,] mapIn, int x, int y)
+    {
+        for (int u = 0; u < x; u++)
+        {
+            for (int v =0; v < y; v++)
+            {
+                if(mapIn[u,v] != 2)
+                {
+                    mapIn[u, v] = 1;
+                }
+            }
+        }
+        for (int u = 0; u < x; u++)
+        {
+            for (int v = 0; v < y; v++)
+            {
+                if (mapIn[u, v] == 2)
+                {
+                    mapIn[u, v] = 0;
+                }
+            }
+        }
+    }
+
+    public void loadMap()
     {
         MapHandler Map = new MapHandler();
 
         Map.MakeCaverns();
         floodMap(Map.hexGrid, Map.width / 2, Map.height / 2, 2, 1);
-        
-        Map.loadMap(wallHexPrefab, floorHexPrefab, fillHexPrefab, this.gameObject);
+
+        if (checkFlooding(Map.hexGrid, Map.height - 1, Map.width - 1) == true)
+        {
+            Debug.Log("success!");
+            drainMap(Map.hexGrid, Map.width - 1, Map.height - 1);
+            Map.loadMap(wallHexPrefab, floorHexPrefab, fillHexPrefab, this.gameObject);
+        }
+        else
+        {
+            Debug.Log("aww Shucks");
+            loadMap();
+        }
+    }
+
+    // Use this for initialization
+    void Start()
+    {
+        loadMap();
     }
 
     // Update is called once per frame

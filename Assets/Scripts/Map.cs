@@ -16,12 +16,12 @@ public class Map : MonoBehaviour
         //Size of the map in terms of hex tiles
         public int width;
         public int height;
-        public int percentAreWalls;
+        public int PercentAreWalls;
 
-        float xOffset = 0.939f;
-        float zOffset = 0.814f;
+        public float xOffset = 0.939f;
+        public float zOffset = 0.814f;
 
-        public int[,] hexGrid;
+        public int[,] HexGrid;
         Node[,] graph;
 
         public void MakeCaverns()
@@ -30,13 +30,13 @@ public class Map : MonoBehaviour
             {
                 for (column = 0; column <= width - 1; column++)
                 {
-                    hexGrid[column, row] = PlaceWallLogic(column, row);
+                    HexGrid[column, row] = PlaceWallLogic(column, row);
                 }
             }
             //FLOOD CAVERN HERE
         }
 
-        class Node
+        public class Node
         {
             public List<Node> neighbours;
 
@@ -46,7 +46,7 @@ public class Map : MonoBehaviour
             }
         }
 
-        void nodeGraph()
+        public void NodeGraph()
         {
             graph = new Node[width, height];
             for (int column = 0, row = 0; row <= height - 1; row++)
@@ -107,16 +107,16 @@ public class Map : MonoBehaviour
 
         public int PlaceWallLogic(int x, int y)
         {
-            int numWalls = GetAdjacentWalls(x, y, 1, 1);
+            int NumberOfWalls = GetAdjacentWalls(x, y, 1, 1);
 
 
-            if (hexGrid[x, y] == 1)
+            if (HexGrid[x, y] == 1)
             {
-                if (numWalls >= 4)
+                if (NumberOfWalls >= 4)
                 {
                     return 1;
                 }
-                if (numWalls < 2)
+                if (NumberOfWalls < 2)
                 {
                     return 0;
                 }
@@ -124,7 +124,7 @@ public class Map : MonoBehaviour
             }
             else
             {
-                if (numWalls >= 5)
+                if (NumberOfWalls >= 5)
                 {
                     return 1;
                 }
@@ -142,7 +142,7 @@ public class Map : MonoBehaviour
             int iX = startX;
             int iY = startY;
 
-            int wallCounter = 0;
+            int WallCounter = 0;
 
             for (iY = startY; iY <= endY; iY++)
             {
@@ -152,15 +152,15 @@ public class Map : MonoBehaviour
                     {
                         if (IsWall(iX, iY))
                         {
-                            wallCounter += 1;
+                            WallCounter += 1;
                         }
                     }
                 }
             }
-            return wallCounter;
+            return WallCounter;
         }
 
-        bool IsWall(int x, int y)
+        public bool IsWall(int x, int y)
         {
 
             // Consider out-of-bound a wall
@@ -169,19 +169,19 @@ public class Map : MonoBehaviour
                 return true;
             }
 
-            if (hexGrid[x, y] == 1)
+            if (HexGrid[x, y] == 1)
             {
                 return true;
             }
 
-            if (hexGrid[x, y] == 0)
+            if (HexGrid[x, y] == 0)
             {
                 return false;
             }
             return false;
         }
 
-        bool IsOutOfBounds(int x, int y)
+        public bool IsOutOfBounds(int x, int y)
         {
             if (x < 0 || y < 0)
             {
@@ -194,12 +194,12 @@ public class Map : MonoBehaviour
             return false;
         }
 
-        public void loadMap(GameObject wallTile, GameObject floorTile, GameObject fillTile, GameObject parent)
+        public void LoadMap(GameObject wallTile, GameObject floorTile, GameObject fillTile, GameObject parent)
         {
-            List<GameObject> tileType = new List<GameObject>();
-            tileType.Add(floorTile);
-            tileType.Add(wallTile);
-            tileType.Add(fillTile);
+            List<GameObject> TileType = new List<GameObject>();
+            TileType.Add(floorTile);
+            TileType.Add(wallTile);
+            TileType.Add(fillTile);
 
             for (int column = 0, row = 0; row < height; row++)
             {
@@ -211,47 +211,47 @@ public class Map : MonoBehaviour
                         xPos += xOffset / 2f;
                     }
 
-                    GameObject hex_go = (GameObject)Instantiate(tileType[hexGrid[column, row]], new Vector3(xPos, 0, row * zOffset), Quaternion.identity);
+                    GameObject hexagon = (GameObject)Instantiate(TileType[HexGrid[column, row]], new Vector3(xPos, 0, row * zOffset), Quaternion.identity);
 
                     string tileName = "";
 
-                    if (hexGrid[column, row] == 0)
+                    if (HexGrid[column, row] == 0)
                     {
                         tileName = "floorTile_";
                     }
-                    else if (hexGrid[column, row] == 1)
+                    else if (HexGrid[column, row] == 1)
                     {
                         tileName = "wallTile_";
                     }
-                    else if (hexGrid[column, row] == 2)
+                    else if (HexGrid[column, row] == 2)
                     {
                         tileName = "fillTile_";
                     }
 
-                    hex_go.name = tileName + "Hex_" + column + "_" + row;
+                    hexagon.name = tileName + "Hex_" + column + "_" + row;
 
-                    hex_go.transform.SetParent(parent.transform);
+                    hexagon.transform.SetParent(parent.transform);
 
-                    hex_go.isStatic = true;
+                    hexagon.isStatic = true;
                 }
             }
         }
 
-        public MapHandler(int mapWidth, int mapHeight, int[,] map, int percentWalls = 47)
+        public MapHandler(int MapWidth, int MapHeight, int[,] map, int PercentAreWalls = 47)
         {
-            this.width = mapWidth;
-            this.height = mapHeight;
-            this.percentAreWalls = percentWalls;
-            this.hexGrid = map;
+            this.width = MapWidth;
+            this.height = MapHeight;
+            this.PercentAreWalls = PercentAreWalls;
+            this.HexGrid = map;
         }
 
         public MapHandler()
         {
             width = 120;
             height = 60;
-            percentAreWalls = 47;
+            PercentAreWalls = 47;
 
-            hexGrid = new int[width, height];
+            HexGrid = new int[width, height];
 
             RandomFillMap();
         }
@@ -261,7 +261,7 @@ public class Map : MonoBehaviour
             {
                 for (column = 0; column < width; column++)
                 {
-                    hexGrid[column, row] = 0;
+                    HexGrid[column, row] = 0;
                 }
             }
         }
@@ -270,7 +270,7 @@ public class Map : MonoBehaviour
         {
 
             // New, empty map
-            hexGrid = new int[width, height];
+            HexGrid = new int[width, height];
 
             int mapMiddle = 0; // Temp variable
             for (int column = 0, row = 0; row < height; row++)
@@ -280,19 +280,19 @@ public class Map : MonoBehaviour
                     // If coordinants lie on the the edge of the map (creates a border)
                     if (column == 0)
                     {
-                        hexGrid[column, row] = 1;
+                        HexGrid[column, row] = 1;
                     }
                     else if (row == 0)
                     {
-                        hexGrid[column, row] = 1;
+                        HexGrid[column, row] = 1;
                     }
                     else if (column == width - 1)
                     {
-                        hexGrid[column, row] = 1;
+                        HexGrid[column, row] = 1;
                     }
                     else if (row == height - 1)
                     {
-                        hexGrid[column, row] = 1;
+                        HexGrid[column, row] = 1;
                     }
                     // Else, fill with a wall a random percent of the time
                     else
@@ -301,11 +301,11 @@ public class Map : MonoBehaviour
 
                         if (row == mapMiddle)
                         {
-                            hexGrid[column, row] = 0;
+                            HexGrid[column, row] = 0;
                         }
                         else
                         {
-                            hexGrid[column, row] = RandomPercent(percentAreWalls);
+                            HexGrid[column, row] = RandomPercent(PercentAreWalls);
                         }
                     }
                 }
@@ -322,7 +322,7 @@ public class Map : MonoBehaviour
         }
     }
 
-    public void floodMap(int[,] mapIn, int x, int y, int fillVal, int boundaryVal)
+    public void FloodMap(int[,] mapIn, int x, int y, int fillVal, int boundaryVal)
     {
         int curVal;
 
@@ -332,29 +332,29 @@ public class Map : MonoBehaviour
             if (curVal != boundaryVal && curVal != fillVal)
             {
                 mapIn[x, y] = fillVal;
-                floodMap(mapIn, x + 1, y, fillVal, boundaryVal);
-                floodMap(mapIn, x - 1, y, fillVal, boundaryVal);
-                floodMap(mapIn, x, y + 1, fillVal, boundaryVal);
-                floodMap(mapIn, x, y - 1, fillVal, boundaryVal);
+                FloodMap(mapIn, x + 1, y, fillVal, boundaryVal);
+                FloodMap(mapIn, x - 1, y, fillVal, boundaryVal);
+                FloodMap(mapIn, x, y + 1, fillVal, boundaryVal);
+                FloodMap(mapIn, x, y - 1, fillVal, boundaryVal);
             }
         }
     }
 
-    public bool checkFlooding(int[,] floodedMap, int x, int y)
-    {   
-        Dictionary<int, int> tileCount = new Dictionary<int, int>();
+    public bool CheckFlooding(int[,] FloodedMap, int x, int y)
+    {
+        Dictionary<int, int> TileCount = new Dictionary<int, int>();
 
-        foreach (int value in floodedMap)
+        foreach (int value in FloodedMap)
         {
-            if (tileCount.ContainsKey(value))
-                tileCount[value]++;
+            if (TileCount.ContainsKey(value))
+                TileCount[value]++;
             else
-                tileCount.Add(value, 1);
+                TileCount.Add(value, 1);
         }
-        if (tileCount.ContainsKey(2))
+        if (TileCount.ContainsKey(2))
         {
-            int needsToBeMoreThan = ((tileCount[1] + tileCount[0])/5)*3;
-            return (tileCount[2] > needsToBeMoreThan) ? true : false;
+            int NeedsToBeMoreThan = ((TileCount[1] + TileCount[0]) / 5) * 3;
+            return (TileCount[2] > NeedsToBeMoreThan) ? true : false;
         }
         else
         {
@@ -362,15 +362,15 @@ public class Map : MonoBehaviour
         }
     }
 
-    public void drainMap (int[,] mapIn, int x, int y)
+    public void DrainMap(int[,] MapIn, int x, int y)
     {
         for (int u = 0; u < x; u++)
         {
-            for (int v =0; v < y; v++)
+            for (int v = 0; v < y; v++)
             {
-                if(mapIn[u,v] != 2)
+                if (MapIn[u, v] != 2)
                 {
-                    mapIn[u, v] = 1;
+                    MapIn[u, v] = 1;
                 }
             }
         }
@@ -378,43 +378,37 @@ public class Map : MonoBehaviour
         {
             for (int v = 0; v < y; v++)
             {
-                if (mapIn[u, v] == 2)
+                if (MapIn[u, v] == 2)
                 {
-                    mapIn[u, v] = 0;
+                    MapIn[u, v] = 0;
                 }
             }
         }
     }
 
-    public void loadMap()
+    public void LoadMap()
     {
         MapHandler Map = new MapHandler();
 
         Map.MakeCaverns();
-        floodMap(Map.hexGrid, Map.width / 2, Map.height / 2, 2, 1);
+        FloodMap(Map.HexGrid, Map.width / 2, Map.height / 2, 2, 1); // Fill Val is set to 2 because that is the red tile, visual for debugging, boundary value is 1 because that is the value for a wall tile(impassable terrain)
 
-        if (checkFlooding(Map.hexGrid, Map.height - 1, Map.width - 1) == true)
+        if (CheckFlooding(Map.HexGrid, Map.height - 1, Map.width - 1) == true)
         {
             Debug.Log("success!");
-            drainMap(Map.hexGrid, Map.width - 1, Map.height - 1);
-            Map.loadMap(wallHexPrefab, floorHexPrefab, fillHexPrefab, this.gameObject);
+            DrainMap(Map.HexGrid, Map.width - 1, Map.height - 1);
+            Map.LoadMap(wallHexPrefab, floorHexPrefab, fillHexPrefab, this.gameObject);
         }
         else
         {
             Debug.Log("aww Shucks");
-            loadMap();
+            LoadMap();
         }
     }
 
     // Use this for initialization
     void Start()
     {
-        loadMap();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
+        LoadMap();
     }
 }

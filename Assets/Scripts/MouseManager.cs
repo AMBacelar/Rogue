@@ -3,6 +3,8 @@ using System.Collections;
 
 public class MouseManager : MonoBehaviour {
 
+    Unit selectedUnit;
+
 	// Use this for initialization
 	void Start () {
 	
@@ -10,6 +12,7 @@ public class MouseManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
         RaycastHit hitInfo;

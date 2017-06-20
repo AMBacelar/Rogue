@@ -19,16 +19,15 @@ public class Unit : MonoBehaviour {
 	void Update () {
         if (CurrentPath != null)
         {
-
             int currNode = 0;
 
             while (currNode < CurrentPath.Count - 1)
             {
 
                 Vector3 start = map.TileCoordToWorldCoord(CurrentPath[currNode].x, CurrentPath[currNode].y) +
-                    new Vector3(0, 0, -1f);
+                    new Vector3(0, 0.5f, 0);
                 Vector3 end = map.TileCoordToWorldCoord(CurrentPath[currNode + 1].x, CurrentPath[currNode + 1].y) +
-                    new Vector3(0, 0, -1f);
+                    new Vector3(0, 0.5f, 0);
 
                 Debug.DrawLine(start, end, Color.red);
 
@@ -38,7 +37,7 @@ public class Unit : MonoBehaviour {
         }
     }
     public void MoveNextTile()
-    {
+    { 
         float remainingMovement = moveSpeed;
 
         while (remainingMovement > 0)

@@ -1,16 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public class MapHandler
+public class MapHandler : MonoBehaviour
 {
-
-
     //Size of the map in terms of hex tiles
     public int width;
     public int height;
     public int PercentAreWalls;
 
-    GameObject selectedUnit;
+    public GameObject selectedUnit;
 
     public float xOffset = 0.939f;
     public float zOffset = 0.814f;
@@ -47,7 +45,7 @@ public class MapHandler
 
     }
 
-    public void GenerateNodeGraph()
+    public void GeneratePathfindingGraph()
     {
         graph = new Node[width, height];
         for (int column = 0, row = 0; row <= height - 1; row++)
@@ -56,7 +54,7 @@ public class MapHandler
             {
                 graph[column, row] = new Node();
                 graph[column, row].x = column;
-                graph[column, row].y = row;
+                graph[column, row].y = row;                
             }
         }
 
@@ -124,7 +122,7 @@ public class MapHandler
         {
             xPos += xOffset / 2f;
         }
-        return new Vector3(xPos, y * zOffset, 0);
+        return new Vector3(xPos, 0, y * zOffset);
     }
 
     public bool UnitCanEnterTile(int x, int y)
@@ -137,9 +135,9 @@ public class MapHandler
     }
 
     public void GeneratePathTo(int x, int y)
-    {
+    {        
         // Clear current path
-
+        selectedUnit = GameObject.FindGameObjectWithTag("Player");
         selectedUnit.GetComponent<Unit>().CurrentPath = null;
 
         Dictionary<Node, float> dist = new Dictionary<Node, float>();
@@ -191,6 +189,11 @@ public class MapHandler
 
             foreach (Node v in u.neighbours)
             {
+                if (v.isTraversable == false)
+                {
+                    Debug.Log("should be passing over black tiles");
+                    continue;
+                }
                 float alt = dist[u] + u.DistanceTo(v);
                 if (alt < dist[v])
                 {
@@ -344,8 +347,20 @@ public class MapHandler
                 hexagon.name = tileName + "Hex_" + column + "_" + row;
 
                 hexagon.transform.SetParent(parent.transform);
-
                 hexagon.isStatic = true;
+                hexagon.AddComponent<Hex>();
+                hexagon.GetComponent<Hex>().xPos = column;
+                hexagon.GetComponent<Hex>().yPos = row;
+                if (HexGrid[column, row] == 1)
+                {
+                    hexagon.GetComponent<Hex>().isWalkable = false;
+                    graph[column, row].isTraversable = false;
+                }
+                else
+                {
+                    hexagon.GetComponent<Hex>().isWalkable = true;
+                    graph[column, row].isTraversable = true;
+                }
             }
         }
     }
@@ -438,7 +453,7 @@ public class MapHandler
     // Use this for initialization
     void Start()
     {
-
+        
     }
 
     // Update is called once per frame

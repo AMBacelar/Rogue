@@ -7,7 +7,10 @@ public class Map : MonoBehaviour
 
     public GameObject floorHexPrefab;
     public GameObject wallHexPrefab;
-    public GameObject fillHexPrefab;     
+    public GameObject fillHexPrefab;
+
+    public MapHandler ActiveMap;
+
 
     public void FloodMap(int[,] mapIn, int x, int y, int fillVal, int boundaryVal)
     {
@@ -75,16 +78,33 @@ public class Map : MonoBehaviour
 
     public void LoadMap()
     {
-        MapHandler Map = new MapHandler();
+        MapHandler ActiveMap = gameObject.AddComponent<MapHandler>();
 
-        Map.MakeCaverns();
-        FloodMap(Map.HexGrid, Map.width / 2, Map.height / 2, 2, 1); // Fill Val is set to 2 because that is the red tile, visual for debugging, boundary value is 1 because that is the value for a wall tile(impassable terrain)
+        ActiveMap.MakeCaverns();
 
-        if (CheckFlooding(Map.HexGrid, Map.height - 1, Map.width - 1) == true)
+        ActiveMap.GeneratePathfindingGraph();
+
+        GameObject selectedUnit = GameObject.FindGameObjectWithTag("Player");
+
+        selectedUnit.GetComponent<Unit>().tileY = (int)(selectedUnit.transform.position.z / ActiveMap.zOffset);
+
+        float xPos = selectedUnit.transform.position.x / ActiveMap.xOffset;
+        if (selectedUnit.GetComponent<Unit>().tileY % 2 != 1)
+        {
+            xPos += ActiveMap.xOffset / 2f;
+        }
+
+        selectedUnit.GetComponent<Unit>().tileX = (int)(xPos);
+
+        selectedUnit.GetComponent<Unit>().map = ActiveMap;
+
+        FloodMap(ActiveMap.HexGrid, ActiveMap.width / 2, ActiveMap.height / 2, 2, 1); // Fill Val is set to 2 because that is the red tile, visual for debugging, boundary value is 1 because that is the value for a wall tile(impassable terrain)
+
+        if (CheckFlooding(ActiveMap.HexGrid, ActiveMap.height - 1, ActiveMap.width - 1) == true)
         {
             Debug.Log("success!");
-            DrainMap(Map.HexGrid, Map.width - 1, Map.height - 1);
-            Map.LoadMap(wallHexPrefab, floorHexPrefab, fillHexPrefab, this.gameObject);
+            DrainMap(ActiveMap.HexGrid, ActiveMap.width - 1, ActiveMap.height - 1);
+            ActiveMap.LoadMap(wallHexPrefab, floorHexPrefab, fillHexPrefab, this.gameObject);
         }
         else
         {
@@ -95,6 +115,6 @@ public class Map : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        LoadMap();        
+        LoadMap();
     }
 }

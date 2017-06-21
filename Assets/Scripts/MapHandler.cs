@@ -28,7 +28,6 @@ public class MapHandler : MonoBehaviour
                 HexGrid[column, row] = PlaceWallLogic(column, row);
             }
         }
-        //FLOOD CAVERN HERE
     }
 
     public float CostToEnterTile(int sourceX, int sourceY, int targetX, int targetY)
@@ -354,25 +353,6 @@ public class MapHandler : MonoBehaviour
         }
     }
 
-    public MapHandler(int MapWidth, int MapHeight, int[,] map, int PercentAreWalls = 47)
-    {
-        this.width = MapWidth;
-        this.height = MapHeight;
-        this.PercentAreWalls = PercentAreWalls;
-        this.HexGrid = map;
-    }
-
-    public MapHandler()
-    {
-        width = 120;
-        height = 60;
-        PercentAreWalls = 47;
-
-        HexGrid = new int[width, height];
-
-        RandomFillMap();
-    }
-
     public void BlankMap()
     {
         for (int column = 0, row = 0; row < height; row++)
@@ -391,9 +371,9 @@ public class MapHandler : MonoBehaviour
         HexGrid = new int[width, height];
 
         int mapMiddle = 0; // Temp variable
-        for (int column = 0, row = 0; row < height; row++)
+        for (int row = 0; row < height; row++)
         {
-            for (column = 0; column < width; column++)
+            for (int column = 0; column < width; column++)
             {
                 // If coordinants lie on the the edge of the map (creates a border)
                 if (column == 0)
@@ -423,31 +403,25 @@ public class MapHandler : MonoBehaviour
                     }
                     else
                     {
-                        HexGrid[column, row] = RandomPercent(PercentAreWalls);
+                        HexGrid[column, row] = RandomPercent(PercentAreWalls, Random.Range(0, 100));
                     }
                 }
+                
             }
         }
     }
 
-    int RandomPercent(int percent)
+    int RandomPercent(int percent, int random)
     {
-        if (percent >= Random.Range(0, 100))
-        {
-            return 1;
-        }
-        return 0;
+        return percent >= random ? 1 : 0;
     }
 
-    // Use this for initialization
-    void Start()
+    private void Awake()
     {
+        width = 120;
+        height = 60;
+        PercentAreWalls = 47;
 
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
+        RandomFillMap();
     }
 }

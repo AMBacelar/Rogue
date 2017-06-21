@@ -7,23 +7,28 @@ public class Map : MonoBehaviour
     public MapHandler ActiveMap;
     public TileType[] tileTypes;
 
+    public int width, height, percentAreWalls;
+
+
     public void FloodMap(int[,] mapIn, int x, int y, int fillVal, int boundaryVal)
     {
-        int curVal;
+        int curVal;        
 
-        if (mapIn[x, y] == 0)
-        {
-            curVal = mapIn[x, y];
-            if (curVal != boundaryVal && curVal != fillVal)
+        
+            if (mapIn[x, y] == 0)
             {
-                mapIn[x, y] = fillVal;
-                FloodMap(mapIn, x + 1, y, fillVal, boundaryVal);
-                FloodMap(mapIn, x - 1, y, fillVal, boundaryVal);
-                FloodMap(mapIn, x, y + 1, fillVal, boundaryVal);
-                FloodMap(mapIn, x, y - 1, fillVal, boundaryVal);
+                curVal = mapIn[x, y];
+                if (curVal != boundaryVal && curVal != fillVal)
+                {
+                    mapIn[x, y] = fillVal;
+
+                    FloodMap(mapIn, x + 1, y, fillVal, boundaryVal);
+                    FloodMap(mapIn, x - 1, y, fillVal, boundaryVal);
+                    FloodMap(mapIn, x, y + 1, fillVal, boundaryVal);
+                    FloodMap(mapIn, x, y - 1, fillVal, boundaryVal);
+                }
             }
         }
-    }
 
     public bool CheckFlooding(int[,] FloodedMap, int x, int y)
     {
@@ -74,7 +79,7 @@ public class Map : MonoBehaviour
     public void LoadMap()
     {
         MapHandler ActiveMap = gameObject.AddComponent<MapHandler>();
-
+        
         ActiveMap.tileTypes = tileTypes;
 
         ActiveMap.MakeCaverns();
@@ -109,7 +114,7 @@ public class Map : MonoBehaviour
             LoadMap();
         }
     }
-    // Use this for initialization
+    
     void Start()
     {
         LoadMap();

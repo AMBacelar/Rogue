@@ -14,9 +14,9 @@ public class MapHandler : MonoBehaviour
     public float zOffset = 0.814f;
 
     public int[,] HexGrid;
-    Hex[] hex;
 
-    int[,] tiles;
+    public TileType[] tileTypes;
+
     Node[,] graph;
 
     public void MakeCaverns()
@@ -34,7 +34,7 @@ public class MapHandler : MonoBehaviour
     public float CostToEnterTile(int sourceX, int sourceY, int targetX, int targetY)
     {
 
-        Hex tt = hex[tiles[targetX, targetY]];
+        TileType tt = tileTypes[HexGrid[targetX, targetY]];
 
         if (UnitCanEnterTile(targetX, targetY) == false)
             return Mathf.Infinity;
@@ -54,7 +54,7 @@ public class MapHandler : MonoBehaviour
             {
                 graph[column, row] = new Node();
                 graph[column, row].x = column;
-                graph[column, row].y = row;                
+                graph[column, row].y = row;
             }
         }
 
@@ -127,15 +127,13 @@ public class MapHandler : MonoBehaviour
 
     public bool UnitCanEnterTile(int x, int y)
     {
-
         // We could test the unit's walk/hover/fly type against various
         // terrain flags here to see if they are allowed to enter the tile.
-
-        return hex[tiles[x, y]].isWalkable;
+        return tileTypes[HexGrid[x, y]].isWalkable;
     }
 
     public void GeneratePathTo(int x, int y)
-    {        
+    {
         // Clear current path
         selectedUnit = GameObject.FindGameObjectWithTag("Player");
         selectedUnit.GetComponent<Unit>().CurrentPath = null;
@@ -189,12 +187,7 @@ public class MapHandler : MonoBehaviour
 
             foreach (Node v in u.neighbours)
             {
-                if (v.isTraversable == false)
-                {
-                    Debug.Log("should be passing over black tiles");
-                    continue;
-                }
-                float alt = dist[u] + u.DistanceTo(v);
+                float alt = dist[u] + CostToEnterTile(u.x, u.y, v.x, v.y);
                 if (alt < dist[v])
                 {
                     dist[v] = alt;
@@ -310,13 +303,8 @@ public class MapHandler : MonoBehaviour
         return false;
     }
 
-    public void LoadMap(GameObject wallTile, GameObject floorTile, GameObject fillTile, GameObject parent)
+    public void LoadMap(GameObject parent)
     {
-        List<GameObject> TileType = new List<GameObject>();
-        TileType.Add(floorTile);
-        TileType.Add(wallTile);
-        TileType.Add(fillTile);
-
         for (int column = 0, row = 0; row < height; row++)
         {
             for (column = 0; column < width; column++)
@@ -327,7 +315,8 @@ public class MapHandler : MonoBehaviour
                     xPos += xOffset / 2f;
                 }
 
-                GameObject hexagon = (GameObject)GameObject.Instantiate(TileType[HexGrid[column, row]], new Vector3(xPos, 0, row * zOffset), Quaternion.identity);
+                TileType tt = tileTypes[HexGrid[column, row]];
+                GameObject hexagon = (GameObject)Instantiate(tt.tileVisualPrefab, new Vector3(xPos, 0, row * zOffset), Quaternion.identity);
 
                 string tileName = "";
 
@@ -453,7 +442,7 @@ public class MapHandler : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame

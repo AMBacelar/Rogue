@@ -1,10 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-
-public class Hex : MonoBehaviour
+[System.Serializable]
+public class TileType
 {
-    public int xPos, yPos;
+
+    public string name;
+    public GameObject tileVisualPrefab;
+
     public bool isWalkable = true;
     public float movementCost = 1;
+
 }

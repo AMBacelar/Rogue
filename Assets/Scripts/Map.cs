@@ -4,13 +4,8 @@ using System.Collections.Generic;
 
 public class Map : MonoBehaviour
 {
-
-    public GameObject floorHexPrefab;
-    public GameObject wallHexPrefab;
-    public GameObject fillHexPrefab;
-
     public MapHandler ActiveMap;
-
+    public TileType[] tileTypes;
 
     public void FloodMap(int[,] mapIn, int x, int y, int fillVal, int boundaryVal)
     {
@@ -80,6 +75,8 @@ public class Map : MonoBehaviour
     {
         MapHandler ActiveMap = gameObject.AddComponent<MapHandler>();
 
+        ActiveMap.tileTypes = tileTypes;
+
         ActiveMap.MakeCaverns();
 
         ActiveMap.GeneratePathfindingGraph();
@@ -104,7 +101,7 @@ public class Map : MonoBehaviour
         {
             Debug.Log("success!");
             DrainMap(ActiveMap.HexGrid, ActiveMap.width - 1, ActiveMap.height - 1);
-            ActiveMap.LoadMap(wallHexPrefab, floorHexPrefab, fillHexPrefab, this.gameObject);
+            ActiveMap.LoadMap(this.gameObject);
         }
         else
         {

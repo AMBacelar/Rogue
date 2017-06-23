@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 
 public class MapHandler : MonoBehaviour
@@ -131,11 +132,11 @@ public class MapHandler : MonoBehaviour
         return tileTypes[HexGrid[x, y]].isWalkable;
     }
 
-    public void GeneratePathTo(int x, int y)
+    public IEnumerator GeneratePathTo(int x, int y, GameObject player)
     {
         // Clear current path
-        selectedUnit = GameObject.FindGameObjectWithTag("Player");
-        selectedUnit.GetComponent<Unit>().CurrentPath = null;
+        player = GameObject.FindGameObjectWithTag("Player");
+        player.GetComponent<Unit>().CurrentPath = null;
 
         Dictionary<Node, float> dist = new Dictionary<Node, float>();
         Dictionary<Node, Node> prev = new Dictionary<Node, Node>();
@@ -143,8 +144,8 @@ public class MapHandler : MonoBehaviour
         List<Node> unvisited = new List<Node>();
 
         Node source = graph[
-            selectedUnit.GetComponent<Unit>().tileX,
-            selectedUnit.GetComponent<Unit>().tileY
+            player.GetComponent<Unit>().tileX,
+            player.GetComponent<Unit>().tileY
             ];
         Node target = graph[
             x,
@@ -162,7 +163,7 @@ public class MapHandler : MonoBehaviour
                 prev[v] = null;
             }
 
-            unvisited.Add(v);
+            unvisited.Add(v);            
         }
 
         while (unvisited.Count > 0)
@@ -184,19 +185,27 @@ public class MapHandler : MonoBehaviour
 
             unvisited.Remove(u);
 
+            int batch = 0;
             foreach (Node v in u.neighbours)
             {
+                batch++;
+                if (batch == 500)
+                {
+                    yield return new WaitForSeconds(0);
+                    batch = 0;
+                }
                 float alt = dist[u] + CostToEnterTile(u.x, u.y, v.x, v.y);
                 if (alt < dist[v])
                 {
                     dist[v] = alt;
-                    prev[v] = u;
+                    prev[v] = u;             
                 }
+                            
             }
         }
         if (prev[target] == null)
         {
-            return;
+            yield break;
         }
         List<Node> currentPath = new List<Node>();
 
@@ -210,7 +219,9 @@ public class MapHandler : MonoBehaviour
 
         currentPath.Reverse();
 
-        selectedUnit.GetComponent<Unit>().CurrentPath = currentPath;
+        player.GetComponent<Unit>().CurrentPath = currentPath;
+
+        yield break;
     }
 
     public int PlaceWallLogic(int x, int y)

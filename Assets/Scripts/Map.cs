@@ -7,7 +7,7 @@ public class Map : MonoBehaviour
     public MapHandler ActiveMap;
     public TileType[] tileTypes;
 
-    public int width, height, percentAreWalls;
+    // public int width, height, percentAreWalls;
 
 
     public void FloodMap(int[,] mapIn, int x, int y, int fillVal, int boundaryVal)

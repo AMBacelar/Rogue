@@ -10,6 +10,7 @@ public class Unit : MonoBehaviour {
     public List<Node> CurrentPath = null;
 
     int moveSpeed = 2;
+
 	// Use this for initialization
 	void Start () {
 	
@@ -25,17 +26,20 @@ public class Unit : MonoBehaviour {
             {
 
                 Vector3 start = map.TileCoordToWorldCoord(CurrentPath[currNode].x, CurrentPath[currNode].y) +
-                    new Vector3(0, 0.5f, 0);
+                    new Vector3(0, 0.25f, 0);
                 Vector3 end = map.TileCoordToWorldCoord(CurrentPath[currNode + 1].x, CurrentPath[currNode + 1].y) +
-                    new Vector3(0, 0.5f, 0);
+                    new Vector3(0, 0.25f, 0);
 
                 Debug.DrawLine(start, end, Color.red);
 
                 currNode++;
             }
-
         }
+
+        // Smoothly animate towards the correct map tile.
+        transform.position = Vector3.Lerp(transform.position, map.TileCoordToWorldCoord(tileX, tileY), 5f * Time.deltaTime);
     }
+
     public void MoveNextTile()
     { 
         float remainingMovement = moveSpeed;
@@ -53,7 +57,7 @@ public class Unit : MonoBehaviour {
             tileX = CurrentPath[1].x;
             tileY = CurrentPath[1].y;
 
-            transform.position = map.TileCoordToWorldCoord(tileX, tileY);   // Update our unity world position
+            //transform.position = map.TileCoordToWorldCoord(tileX, tileY);   // Update our unity world position
 
             // Remove the old "current" tile
             CurrentPath.RemoveAt(0);

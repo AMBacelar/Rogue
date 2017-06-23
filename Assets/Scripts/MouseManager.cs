@@ -8,6 +8,8 @@ public class MouseManager : MonoBehaviour
 
     GameObject selectedUnit;
 
+
+
     // Use this for initialization
     void Start()
     {
@@ -23,8 +25,7 @@ public class MouseManager : MonoBehaviour
     {
 
         if (Input.GetMouseButtonDown(1))
-        {
-            Debug.Log("1");
+        {            
             selectedUnit.GetComponent<Unit>().MoveNextTile();
         }
 
@@ -35,11 +36,9 @@ public class MouseManager : MonoBehaviour
             RaycastHit hitInfo;
             if (Physics.Raycast(ray, out hitInfo))
             {
-                Debug.Log("Raycast hit: " + hitInfo.collider.transform.parent.name);
-                Debug.Log("Hexagon Array position = " + hitInfo.collider.gameObject.transform.parent.GetComponent<Hex>().xPos + "," + hitInfo.collider.gameObject.transform.parent.GetComponent<Hex>().yPos);
-                Debug.Log("Object position = " + hitInfo.collider.gameObject.transform.position);
-
-                CurrentMap.GeneratePathTo(hitInfo.collider.gameObject.transform.parent.GetComponent<Hex>().xPos, hitInfo.collider.gameObject.transform.parent.GetComponent<Hex>().yPos);
+                IEnumerator pathfinder = CurrentMap.GeneratePathTo(hitInfo.collider.gameObject.transform.parent.GetComponent<Hex>().xPos, hitInfo.collider.gameObject.transform.parent.GetComponent<Hex>().yPos, selectedUnit);
+                CurrentMap.StartCoroutine(pathfinder);
+                //CurrentMap.GeneratePathTo(hitInfo.collider.gameObject.transform.parent.GetComponent<Hex>().xPos, hitInfo.collider.gameObject.transform.parent.GetComponent<Hex>().yPos, selectedUnit);
             }
             
         }

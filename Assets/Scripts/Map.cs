@@ -9,7 +9,6 @@ public class Map : MonoBehaviour
 
     // public int width, height, percentAreWalls;
 
-
     public void FloodMap(int[,] mapIn, int x, int y, int fillVal, int boundaryVal)
     {
         int curVal;        

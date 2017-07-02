@@ -15,22 +15,15 @@ public class MapHandler : MonoBehaviour
     public float zOffset = 0.814f;
 
     public int[,] HexGrid;
+    public int[,] ProximityGrid;
 
     public TileType[] tileTypes;
 
     Node[,] graph;
 
-    public void MakeCaverns()
-    {
-        for (int column = 0, row = 0; row <= height - 1; row++)
-        {
-            for (column = 0; column <= width - 1; column++)
-            {
-                HexGrid[column, row] = PlaceWallLogic(column, row);
-            }
-        }
-    }
 
+
+    #region Pathfinding
     public float CostToEnterTile(int sourceX, int sourceY, int targetX, int targetY)
     {
 
@@ -163,7 +156,7 @@ public class MapHandler : MonoBehaviour
                 prev[v] = null;
             }
 
-            unvisited.Add(v);            
+            unvisited.Add(v);
         }
 
         while (unvisited.Count > 0)
@@ -198,9 +191,9 @@ public class MapHandler : MonoBehaviour
                 if (alt < dist[v])
                 {
                     dist[v] = alt;
-                    prev[v] = u;             
+                    prev[v] = u;
                 }
-                            
+
             }
         }
         if (prev[target] == null)
@@ -222,6 +215,19 @@ public class MapHandler : MonoBehaviour
         player.GetComponent<Unit>().CurrentPath = currentPath;
 
         yield break;
+    } 
+    #endregion
+
+    #region HexGrid
+    public void MakeCaverns()
+    {
+        for (int column = 0, row = 0; row <= height - 1; row++)
+        {
+            for (column = 0; column <= width - 1; column++)
+            {
+                HexGrid[column, row] = PlaceWallLogic(column, row);
+            }
+        }
     }
 
     public int PlaceWallLogic(int x, int y)
@@ -417,7 +423,7 @@ public class MapHandler : MonoBehaviour
                         HexGrid[column, row] = RandomPercent(PercentAreWalls, Random.Range(0, 100));
                     }
                 }
-                
+
             }
         }
     }
@@ -425,7 +431,8 @@ public class MapHandler : MonoBehaviour
     int RandomPercent(int percent, int random)
     {
         return percent >= random ? 1 : 0;
-    }
+    } 
+    #endregion
 
     private void Awake()
     {

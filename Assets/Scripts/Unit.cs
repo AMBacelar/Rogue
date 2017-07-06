@@ -70,6 +70,6 @@ public class Unit : MonoBehaviour {
                 CurrentPath = null;
             }
         }
-
+        
     }
 }

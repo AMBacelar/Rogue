@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public class MapHandler : MonoBehaviour
 {
@@ -215,7 +216,7 @@ public class MapHandler : MonoBehaviour
         player.GetComponent<Unit>().CurrentPath = currentPath;
 
         yield break;
-    } 
+    }
     #endregion
 
     #region HexGrid
@@ -431,7 +432,138 @@ public class MapHandler : MonoBehaviour
     int RandomPercent(int percent, int random)
     {
         return percent >= random ? 1 : 0;
-    } 
+    }
+    #endregion
+
+    #region ProximityGrid
+
+    public void InitializeProximityGrid(int MaxValue, int StartPositionX, int StartPositionY)
+    {
+        ProximityGrid = new int[width, height];
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                ProximityGrid[i, j] = MaxValue;
+            }
+        }
+        ProximityGrid[StartPositionX, StartPositionY] = 0;
+    }
+
+    public IEnumerator ProximityFill(int MaxValue, int StartPositionX, int StartPositionY)
+    {
+        int value = ProximityGrid[StartPositionX, StartPositionY];
+        value++;
+        if (value == MaxValue)
+            yield break;
+
+        int batch = 0;
+
+        for (int i = 0; i < graph[StartPositionX, StartPositionY].neighbours.Count; i++)
+        {
+            if (value < MaxValue &&
+                value < ProximityGrid[graph[StartPositionX, StartPositionY].neighbours[i].x, graph[StartPositionX, StartPositionY].neighbours[i].y] &&
+                HexGrid[graph[StartPositionX, StartPositionY].neighbours[i].x, graph[StartPositionX, StartPositionY].neighbours[i].y] != 1)
+            {
+                batch++;
+                if (batch == 500)
+                {
+                    batch = 0;
+                    yield return new WaitForSeconds(0);
+                }
+                ProximityGrid[graph[StartPositionX, StartPositionY].neighbours[i].x, graph[StartPositionX, StartPositionY].neighbours[i].y] = value;
+                Debug.Log("Tile " + graph[StartPositionX, StartPositionY].neighbours[i].x + "," + graph[StartPositionX, StartPositionY].neighbours[i].y + " now has the value of " + value);
+            }
+        }
+        for (int o = 0; o < graph[StartPositionX, StartPositionY].neighbours.Count; o++)
+        {
+            batch++;
+            if (batch == 500)
+            {
+                batch = 0;
+                yield return new WaitForSeconds(0);
+            }
+            if (value < MaxValue &&
+                value < ProximityGrid[graph[StartPositionX, StartPositionY].neighbours[o].x, graph[StartPositionX, StartPositionY].neighbours[o].y] &&
+                HexGrid[graph[StartPositionX, StartPositionY].neighbours[o].x, graph[StartPositionX, StartPositionY].neighbours[o].y] != 1)
+            {
+                IEnumerator proxFill = ProximityFill(MaxValue, graph[StartPositionX, StartPositionY].neighbours[o].x, graph[StartPositionX, StartPositionY].neighbours[o].y);
+                StartCoroutine(proxFill);
+            }
+        }
+        Debug.Log("========================================================");
+    }
+
+    public void BFT(int StartPositionX, int StartPositionY)
+    {
+        bool[,] visited = new bool[width, height];
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                visited[i, j] = false;
+            }
+        }
+
+        LinkedList<Node> queue = new LinkedList<Node>();
+
+        queue.AddLast(graph[StartPositionX, StartPositionY]);
+
+        int value = 0;
+        int layerProgress = 0;
+        int LayerMultiplier = 1;
+
+        Node Start = queue.First();
+        ProximityGrid[Start.x, Start.y] = value;
+        Debug.Log("the value of ProximityGrid[" + Start.x + "," + Start.y + "] is" + ProximityGrid[Start.x, Start.y]);
+        value++;
+
+        List<Node> firstRep = Start.neighbours;
+
+        for (int a = 0; a <firstRep.Count; a++)
+        {
+            if (!visited[firstRep[a].x, firstRep[a].y])
+            {
+                visited[firstRep[a].x, firstRep[a].y] = true;
+                queue.AddLast(graph[firstRep[a].x, firstRep[a].y]);
+            }
+        }
+        queue.RemoveFirst();
+
+        while (queue.Any())
+        {
+            if (layerProgress > 0 && layerProgress % (6*LayerMultiplier) == 0)
+            {
+                value++;
+                LayerMultiplier++;
+                layerProgress = 0;
+            }
+
+            if (value > 4)
+            {
+                return;
+            }
+
+            //dequeue a vertex from the queue and print it
+            Node S = queue.First();            
+            //This is where I do stuff, I guess?
+            ProximityGrid[S.x, S.y] = value;
+            Debug.Log("the value of ProximityGrid[" + S.x + "," + S.y + "] is" + ProximityGrid[S.x, S.y]);
+            layerProgress++;
+            List<Node> list = S.neighbours;
+
+            for (int a = 0; a < list.Count; a++)
+            {
+                if (!visited[list[a].x, list[a].y])
+                {
+                    visited[list[a].x, list[a].y] = true;
+                    queue.AddLast(graph[list[a].x, list[a].y]);
+                }
+            }
+            queue.RemoveFirst();
+        }
+    }
+
     #endregion
 
     private void Awake()

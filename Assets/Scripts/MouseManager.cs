@@ -33,12 +33,20 @@ public class MouseManager : MonoBehaviour
         {            
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
+            CurrentMap.InitializeProximityGrid(5, selectedUnit.GetComponent<Unit>().tileX, selectedUnit.GetComponent<Unit>().tileY);
+            IEnumerator proximityFill = CurrentMap.ProximityFill(5, selectedUnit.GetComponent<Unit>().tileX, selectedUnit.GetComponent<Unit>().tileY);
+            //CurrentMap.StartCoroutine(proximityFill);
+
+            CurrentMap.BFT(selectedUnit.GetComponent<Unit>().tileX, selectedUnit.GetComponent<Unit>().tileY);
+
             RaycastHit hitInfo;
             if (Physics.Raycast(ray, out hitInfo))
             {
-                IEnumerator pathfinder = CurrentMap.GeneratePathTo(hitInfo.collider.gameObject.transform.parent.GetComponent<Hex>().xPos, hitInfo.collider.gameObject.transform.parent.GetComponent<Hex>().yPos, selectedUnit);
-                CurrentMap.StartCoroutine(pathfinder);
-                //CurrentMap.GeneratePathTo(hitInfo.collider.gameObject.transform.parent.GetComponent<Hex>().xPos, hitInfo.collider.gameObject.transform.parent.GetComponent<Hex>().yPos, selectedUnit);
+                if (hitInfo.collider.gameObject.transform.parent.GetComponent<Hex>().isWalkable == true)
+                {
+                    IEnumerator pathfinder = CurrentMap.GeneratePathTo(hitInfo.collider.gameObject.transform.parent.GetComponent<Hex>().xPos, hitInfo.collider.gameObject.transform.parent.GetComponent<Hex>().yPos, selectedUnit);
+                    CurrentMap.StartCoroutine(pathfinder);
+                }
             }
             
         }

@@ -307,6 +307,74 @@ public class MapHandler : MonoBehaviour
         return false;
     }
 
+    public void isPit(int threshold, int replaceWith)
+    {
+        // search through all the wall tiles in the map, once it finds a wall tile, it is to check it's neighbours
+        // the wall tile and it's neighbours are added to a queue, to be worked, you are to count all of the wall 
+        // tiles that are in contact with each other, and if they are lower than a threshold then set them to be a
+        // pit tile.
+
+        bool[,] visited = new bool[width, height];
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                visited[i, j] = false;
+            }
+        }
+
+        LinkedList<Node> queue = new LinkedList<Node>();
+
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                if (IsWall(i, j) && visited[i,j] == false)
+                {
+                    queue.AddLast(graph[i, j]);
+
+                    Node Start = queue.First();
+
+                    List<Node> firstRep = Start.neighbours;
+
+                    for (int a = 0; a < firstRep.Count; a++)
+                    {
+                        if (!visited[firstRep[a].x, firstRep[a].y] && IsWall(firstRep[a].x, firstRep[a].y))
+                        {
+                            visited[firstRep[a].x, firstRep[a].y] = true;
+                            queue.AddLast(graph[firstRep[a].x, firstRep[a].y]);
+                        }
+                    }
+                    queue.RemoveFirst();
+
+                    int wallCount = 0;
+
+                    while (queue.Any())
+                    {
+                        Node S = queue.First();                        
+
+                        List<Node> list = S.neighbours;
+
+                        for (int a = 0; a < list.Count; a++)
+                        {
+                            if (!visited[list[a].x, list[a].y] && IsWall(list[a].x, list[a].y))
+                            {
+                                visited[list[a].x, list[a].y] = true;
+                                queue.AddLast(graph[list[a].x, list[a].y]);
+                                wallCount++;
+                            }
+                        }
+                        queue.RemoveFirst();
+                    }
+                    Debug.Log(wallCount);
+                }
+            }
+        }
+
+        List<Node> onlyIfItsAWall = new List<Node>();        
+
+    }
+
     public bool IsOutOfBounds(int x, int y)
     {
         if (x < 0 || y < 0)
@@ -494,7 +562,7 @@ public class MapHandler : MonoBehaviour
         Debug.Log("========================================================");
     }
 
-    public void BFT(int StartPositionX, int StartPositionY)
+    public void BreadthFirstTraversal(int StartPositionX, int StartPositionY)
     {
         bool[,] visited = new bool[width, height];
         for (int i = 0; i < width; i++)
@@ -520,7 +588,7 @@ public class MapHandler : MonoBehaviour
 
         List<Node> firstRep = Start.neighbours;
 
-        for (int a = 0; a <firstRep.Count; a++)
+        for (int a = 0; a < firstRep.Count; a++)
         {
             if (!visited[firstRep[a].x, firstRep[a].y])
             {
@@ -532,7 +600,7 @@ public class MapHandler : MonoBehaviour
 
         while (queue.Any())
         {
-            if (layerProgress > 0 && layerProgress % (6*LayerMultiplier) == 0)
+            if (layerProgress > 0 && layerProgress % (6 * LayerMultiplier) == 0)
             {
                 value++;
                 LayerMultiplier++;
@@ -545,7 +613,7 @@ public class MapHandler : MonoBehaviour
             }
 
             //dequeue a vertex from the queue and print it
-            Node S = queue.First();            
+            Node S = queue.First();
             //This is where I do stuff, I guess?
             ProximityGrid[S.x, S.y] = value;
             Debug.Log("the value of ProximityGrid[" + S.x + "," + S.y + "] is" + ProximityGrid[S.x, S.y]);

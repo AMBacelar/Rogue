@@ -11,8 +11,7 @@ public class Map : MonoBehaviour
 
     public void FloodMap(int[,] mapIn, int x, int y, int fillVal, int boundaryVal)
     {
-        int curVal;        
-
+        int curVal;
         
             if (mapIn[x, y] == 0)
             {
@@ -81,7 +80,7 @@ public class Map : MonoBehaviour
         
         ActiveMap.tileTypes = tileTypes;
 
-        ActiveMap.MakeCaverns();
+        ActiveMap.MakeCaverns();        
 
         ActiveMap.GeneratePathfindingGraph();
 
@@ -100,6 +99,8 @@ public class Map : MonoBehaviour
         selectedUnit.GetComponent<Unit>().map = ActiveMap;
 
         FloodMap(ActiveMap.HexGrid, ActiveMap.width / 2, ActiveMap.height / 2, 2, 1); // Fill Val is set to 2 because that is the red tile, visual for debugging, boundary value is 1 because that is the value for a wall tile(impassable terrain)
+
+        ActiveMap.isPit(12, 2);
 
         if (CheckFlooding(ActiveMap.HexGrid, ActiveMap.height - 1, ActiveMap.width - 1) == true)
         {

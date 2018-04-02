@@ -98,14 +98,13 @@ public class Map : MonoBehaviour
 
         selectedUnit.GetComponent<Unit>().map = ActiveMap;
 
-        FloodMap(ActiveMap.HexGrid, ActiveMap.width / 2, ActiveMap.height / 2, 2, 1); // Fill Val is set to 2 because that is the red tile, visual for debugging, boundary value is 1 because that is the value for a wall tile(impassable terrain)
-
-        ActiveMap.isPit(12, 2);
+        FloodMap(ActiveMap.HexGrid, ActiveMap.width / 2, ActiveMap.height / 2, 2, 1); // Fill Val is set to 2 because that is the red tile, visual for debugging, boundary value is 1 because that is the value for a wall tile(impassable terrain)        
 
         if (CheckFlooding(ActiveMap.HexGrid, ActiveMap.height - 1, ActiveMap.width - 1) == true)
         {
             Debug.Log("success!");
             DrainMap(ActiveMap.HexGrid, ActiveMap.width - 1, ActiveMap.height - 1);
+            ActiveMap.isPit(12, 2);
             ActiveMap.LoadMap(this.gameObject);
         }
         else

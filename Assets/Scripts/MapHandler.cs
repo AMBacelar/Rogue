@@ -22,8 +22,6 @@ public class MapHandler : MonoBehaviour
 
     Node[,] graph;
 
-
-
     #region Pathfinding
     public float CostToEnterTile(int sourceX, int sourceY, int targetX, int targetY)
     {
@@ -329,7 +327,7 @@ public class MapHandler : MonoBehaviour
         {
             for (int j = 0; j < height; j++)
             {
-                if (IsWall(i, j) && visited[i,j] == false)
+                if (IsWall(i, j) && visited[i, j] == false)
                 {
                     queue.AddLast(graph[i, j]);
 
@@ -349,9 +347,11 @@ public class MapHandler : MonoBehaviour
 
                     int wallCount = 0;
 
+                    List<Node> wallTileGroup = new List<Node>();
+
                     while (queue.Any())
                     {
-                        Node S = queue.First();                        
+                        Node S = queue.First();
 
                         List<Node> list = S.neighbours;
 
@@ -360,6 +360,7 @@ public class MapHandler : MonoBehaviour
                             if (!visited[list[a].x, list[a].y] && IsWall(list[a].x, list[a].y))
                             {
                                 visited[list[a].x, list[a].y] = true;
+                                wallTileGroup.Add(list[a]);
                                 queue.AddLast(graph[list[a].x, list[a].y]);
                                 wallCount++;
                             }
@@ -367,11 +368,20 @@ public class MapHandler : MonoBehaviour
                         queue.RemoveFirst();
                     }
                     Debug.Log(wallCount);
+                    if (wallCount < threshold)
+                    {
+                        // get a list of tile coordinates that need to be changed to red tiles
+                        for (var n = 0; n < wallTileGroup.Count; n++)
+                        {
+                            HexGrid[wallTileGroup[n].x, wallTileGroup[n].y] = replaceWith;
+                        }
+
+                    }
                 }
             }
         }
 
-        List<Node> onlyIfItsAWall = new List<Node>();        
+        List<Node> onlyIfItsAWall = new List<Node>();
 
     }
 
@@ -518,50 +528,6 @@ public class MapHandler : MonoBehaviour
         ProximityGrid[StartPositionX, StartPositionY] = 0;
     }
 
-    public IEnumerator ProximityFill(int MaxValue, int StartPositionX, int StartPositionY)
-    {
-        int value = ProximityGrid[StartPositionX, StartPositionY];
-        value++;
-        if (value == MaxValue)
-            yield break;
-
-        int batch = 0;
-
-        for (int i = 0; i < graph[StartPositionX, StartPositionY].neighbours.Count; i++)
-        {
-            if (value < MaxValue &&
-                value < ProximityGrid[graph[StartPositionX, StartPositionY].neighbours[i].x, graph[StartPositionX, StartPositionY].neighbours[i].y] &&
-                HexGrid[graph[StartPositionX, StartPositionY].neighbours[i].x, graph[StartPositionX, StartPositionY].neighbours[i].y] != 1)
-            {
-                batch++;
-                if (batch == 500)
-                {
-                    batch = 0;
-                    yield return new WaitForSeconds(0);
-                }
-                ProximityGrid[graph[StartPositionX, StartPositionY].neighbours[i].x, graph[StartPositionX, StartPositionY].neighbours[i].y] = value;
-                Debug.Log("Tile " + graph[StartPositionX, StartPositionY].neighbours[i].x + "," + graph[StartPositionX, StartPositionY].neighbours[i].y + " now has the value of " + value);
-            }
-        }
-        for (int o = 0; o < graph[StartPositionX, StartPositionY].neighbours.Count; o++)
-        {
-            batch++;
-            if (batch == 500)
-            {
-                batch = 0;
-                yield return new WaitForSeconds(0);
-            }
-            if (value < MaxValue &&
-                value < ProximityGrid[graph[StartPositionX, StartPositionY].neighbours[o].x, graph[StartPositionX, StartPositionY].neighbours[o].y] &&
-                HexGrid[graph[StartPositionX, StartPositionY].neighbours[o].x, graph[StartPositionX, StartPositionY].neighbours[o].y] != 1)
-            {
-                IEnumerator proxFill = ProximityFill(MaxValue, graph[StartPositionX, StartPositionY].neighbours[o].x, graph[StartPositionX, StartPositionY].neighbours[o].y);
-                StartCoroutine(proxFill);
-            }
-        }
-        Debug.Log("========================================================");
-    }
-
     public void BreadthFirstTraversal(int StartPositionX, int StartPositionY)
     {
         bool[,] visited = new bool[width, height];
@@ -583,7 +549,6 @@ public class MapHandler : MonoBehaviour
 
         Node Start = queue.First();
         ProximityGrid[Start.x, Start.y] = value;
-        Debug.Log("the value of ProximityGrid[" + Start.x + "," + Start.y + "] is" + ProximityGrid[Start.x, Start.y]);
         value++;
 
         List<Node> firstRep = Start.neighbours;
@@ -616,7 +581,6 @@ public class MapHandler : MonoBehaviour
             Node S = queue.First();
             //This is where I do stuff, I guess?
             ProximityGrid[S.x, S.y] = value;
-            Debug.Log("the value of ProximityGrid[" + S.x + "," + S.y + "] is" + ProximityGrid[S.x, S.y]);
             layerProgress++;
             List<Node> list = S.neighbours;
 

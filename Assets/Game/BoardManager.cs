@@ -83,7 +83,7 @@ public class BoardManager : MonoBehaviour {
                 TileType tt = tileTypes[HexGrid[column, row]];
                 GameObject hexagon = (GameObject) Instantiate (tt.tileVisualPrefab, new Vector3 (xPos, 0, row * zOffset), Quaternion.identity);
 
-                hexagon.name = "Hex_" + column + "_" + row;
+                hexagon.name = "Hex_" + tileName + "_" + column + "_" + row;
 
                 //hexagon.transform.SetParent(parent.transform);
                 hexagon.isStatic = true;

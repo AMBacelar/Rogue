@@ -4,44 +4,44 @@ using UnityEngine;
 public class ActionResult
 {
 
-  private bool _succeeded;
+    private bool _succeeded;
 
-  public bool Succeeded
-  {
-    get
+    public bool Succeeded
     {
-      return _succeeded;
+        get
+        {
+            return _succeeded;
+        }
     }
-  }
 
-  private Action _alternate;
-  public Action Alternate
-  {
-    get
+    private Action _alternate;
+    public Action Alternate
     {
-      return _alternate;
+        get
+        {
+            return _alternate;
+        }
     }
-  }
 
-  public static ActionResult SUCCESS
-  {
-    get { return new ActionResult(); }
-  }
+    public static ActionResult SUCCESS
+    {
+        get { return new ActionResult(); }
+    }
 
-  public static ActionResult FAILURE(Action alternate)
-  {
-    return new ActionResult(alternate);
-  }
+    public static ActionResult FAILURE(Action alternate)
+    {
+        return new ActionResult(alternate);
+    }
 
-  private ActionResult()
-  {
-    _succeeded = true;
-  }
+    private ActionResult()
+    {
+        _succeeded = true;
+    }
 
-  private ActionResult(Action alternate)
-  {
-    _succeeded = false;
-    _alternate = alternate;
-  }
+    private ActionResult(Action alternate)
+    {
+        _succeeded = false;
+        _alternate = alternate;
+    }
 
 }

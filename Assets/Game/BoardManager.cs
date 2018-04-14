@@ -19,11 +19,15 @@ public class BoardManager : MonoBehaviour
 
     MapGenerator generator = new MapGenerator();
 
-    void Awake()
+    public void Initialise()
     {
         if (instance == null) instance = this;
         else Debug.LogError("More than one BoardManager");
+    }
 
+    public void Awake()
+    {
+        Initialise();
         HexGrid = generator.GenerateMap(width, height);
         LoadMap(HexGrid);
     }
@@ -36,51 +40,6 @@ public class BoardManager : MonoBehaviour
             xPos += xOffset / 2f;
         }
         return new Vector3(xPos, 0, y * zOffset);
-    }
-
-    public bool IsOutOfBounds(int x, int y)
-    {
-        return IsOutOfBounds(HexGrid, x, y);
-    }
-
-    public bool IsOutOfBounds(int[,] mapIn, int x, int y)
-    {
-        if (x < 0 || y < 0)
-        {
-            return true;
-        }
-        else if (x > width - 1 || y > height - 1)
-        {
-            return true;
-        }
-        return false;
-    }
-
-    public bool IsWall(int x, int y)
-    {
-
-        return IsWall(HexGrid, x, y);
-    }
-
-    public bool IsWall(int[,] mapIn, int x, int y)
-    {
-
-        // Consider out-of-bound a wall
-        if (IsOutOfBounds(mapIn, x, y))
-        {
-            return true;
-        }
-
-        if (mapIn[x, y] == 1)
-        {
-            return true;
-        }
-
-        if (mapIn[x, y] == 0)
-        {
-            return false;
-        }
-        return false;
     }
 
     public void LoadMap(int[,] mapIn)

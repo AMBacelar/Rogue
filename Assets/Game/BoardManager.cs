@@ -34,12 +34,7 @@ public class BoardManager : MonoBehaviour
 
     public Vector3 TileCoordToWorldCoord(int x, int y)
     {
-        float xPos = x * xOffset;
-        if (y % 2 == 1)
-        {
-            xPos += xOffset / 2f;
-        }
-        return new Vector3(xPos, 0, y * zOffset);
+        return new Vector3(xOffset * (x + y / 2f), 0, y * zOffset);
     }
 
     public void LoadMap(int[,] mapIn)
@@ -51,21 +46,15 @@ public class BoardManager : MonoBehaviour
         {
             for (column = 0; column < x; column++)
             {
-                float xPos = column * xOffset;
-                if (row % 2 == 1)
-                {
-                    xPos += xOffset / 2f;
-                }
-
                 TileType tt = tileTypes[HexGrid[column, row]];
-                GameObject hexagon = (GameObject)Instantiate(tt.tileVisualPrefab, new Vector3(xPos, 0, row * zOffset), Quaternion.identity);
+                GameObject hexagon = (GameObject)Instantiate(tt.tileVisualPrefab, new Vector3(xOffset * (column + row / 2f), 0, row * zOffset), Quaternion.identity, this.transform);
 
                 hexagon.name = "Hex_" + column + "_" + row;
-
-                //hexagon.transform.SetParent(parent.transform);
                 hexagon.isStatic = true;
             }
         }
+
+        StaticBatchingUtility.Combine(this.gameObject);
     }
 
     public void LoadMap()

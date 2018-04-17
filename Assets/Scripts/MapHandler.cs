@@ -432,17 +432,12 @@ public class MapHandler : MonoBehaviour
 
                 hexagon.transform.SetParent(parent.transform);
                 hexagon.isStatic = true;
-                hexagon.AddComponent<Hex>();
-                hexagon.GetComponent<Hex>().xPos = column;
-                hexagon.GetComponent<Hex>().yPos = row;
                 if (HexGrid[column, row] == 1)
                 {
-                    hexagon.GetComponent<Hex>().isWalkable = false;
                     graph[column, row].isTraversable = false;
                 }
                 else
                 {
-                    hexagon.GetComponent<Hex>().isWalkable = true;
                     graph[column, row].isTraversable = true;
                 }
             }

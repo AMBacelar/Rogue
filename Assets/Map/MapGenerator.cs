@@ -5,26 +5,26 @@ using UnityEngine;
 public class MapGenerator
 {
 
-    public int[,] GenerateMap(int width, int height)
+    public Hex[,] GenerateMap(int width, int height)
     {
-        int[,] tileGrid = new int[width, height];
+        Hex[,] tileGrid = new Hex[width, height];
         tileGrid = RandomFillMap(tileGrid, 47);
         tileGrid = MakeCaverns(tileGrid);
-        FloodMap(tileGrid, width / 2, height / 2, 2, 1);
-        if (CheckFlooding(tileGrid, 2, 0, 1) == true)
-        {
-            Debug.Log("success!");
-            tileGrid = DrainMap(tileGrid, 2, 1, 0);
-        }
-        else
+        FloodMap(tileGrid, width / 2, height / 2, 0, 2, 1);
+        tileGrid = DrainMap(tileGrid, 2, 0, 1);
+        if (CheckFlooding(tileGrid, 0) == false)
         {
             Debug.Log("aww Shucks");
             GenerateMap(width, height);
         }
+        else
+        {
+            Debug.Log("success!");
+        }
         return tileGrid;
     }
 
-    public int[,] RandomFillMap(int[,] mapIn, int percentIsFloor)
+    public Hex[,] RandomFillMap(Hex[,] mapIn, int percentIsFloor)
     {
         int x = mapIn.GetLength(0);
         int y = mapIn.GetLength(1);
@@ -35,19 +35,19 @@ public class MapGenerator
                 // If coordinants lie on the the edge of the map (creates a border)
                 if (column == 0)
                 {
-                    mapIn[column, row] = 1;
+                    mapIn[column, row] = new Hex(false, 1, column, row);
                 }
                 else if (row == 0)
                 {
-                    mapIn[column, row] = 1;
+                    mapIn[column, row] = new Hex(false, 1, column, row);
                 }
                 else if (column == x - 1)
                 {
-                    mapIn[column, row] = 1;
+                    mapIn[column, row] = new Hex(false, 1, column, row);
                 }
                 else if (row == y - 1)
                 {
-                    mapIn[column, row] = 1;
+                    mapIn[column, row] = new Hex(false, 1, column, row);
                 }
                 // Else, fill with a wall a random percent of the time
                 else
@@ -56,11 +56,12 @@ public class MapGenerator
 
                     if (row == mapMiddle)
                     {
-                        mapIn[column, row] = 0;
+                        mapIn[column, row] = new Hex(true, 0, column, row);
                     }
                     else
                     {
-                        mapIn[column, row] = RandomPercent(percentIsFloor, Random.Range(0, 100));
+                        bool isFloor = RandomPercent(percentIsFloor, Random.Range(0, 100));
+                        mapIn[column, row] = new Hex(isFloor, isFloor ? 0 : 1, column, row);
                     }
                 }
 
@@ -69,142 +70,112 @@ public class MapGenerator
         return mapIn;
     }
 
-    public int RandomPercent(int percent, int random)
+    public bool RandomPercent(int percent, int random)
     {
-        return percent >= random ? 1 : 0;
+        return percent >= random ? true : false;
     }
 
-    public int[,] MakeCaverns(int[,] mapIn)
+    public Hex[,] MakeCaverns(Hex[,] mapIn)
     {
         int width = mapIn.GetLength(0);
         int height = mapIn.GetLength(1);
+        Hex[,] newMap = new Hex[width, height];
         for (int row = 0; row <= height - 1; row++)
         {
             for (int column = 0; column <= width - 1; column++)
             {
-                mapIn[column, row] = PlaceWallLogic(mapIn, column, row);
+                newMap[column, row] = PlaceWallLogic(mapIn, column, row);
             }
         }
-        return mapIn;
+        return newMap;
     }
 
-    public int PlaceWallLogic(int[,] mapIn, int x, int y)
+    public Hex PlaceWallLogic(Hex[,] mapIn, int x, int y)
     {
         int NumberOfWalls = GetAdjacentWalls(mapIn, x, y);
 
-        if (mapIn[x, y] == 1)
+        if (!mapIn[x, y].isWalkable)
         {
-            if (NumberOfWalls >= 4)
+            if (NumberOfWalls >= 3)
             {
-                return 1;
+                return new Hex(false, 1, x, y);
             }
-            if (NumberOfWalls < 2)
-            {
-                return 0;
-            }
+            return new Hex(true, 0, x, y);
         }
-        else
+        if (NumberOfWalls > 3)
         {
-            if (NumberOfWalls >= 5)
-            {
-                return 1;
-            }
+            return new Hex(false, 1, x, y);
         }
-        return 0;
+        return new Hex(true, 0, x, y);
     }
 
-    public int GetAdjacentWalls(int[,] mapIn, int x, int y)
+    public int GetAdjacentWalls(Hex[,] mapIn, int x, int y)
     {
         // receive a position on the board, return how many neighbours it has
 
-        int startX = x - 1;
-        int startY = y - 1;
-        int endX = x + 1;
-        int endY = y + 1;
+        Hex[] neighbours = mapIn[x, y].GetNeighbours();
 
-        int iX = startX;
-        int iY = startY;
+        int Untraversable = 0;
 
-        int WallCounter = 0;
-
-        for (iY = startY; iY <= endY; iY++)
+        foreach (Hex h in neighbours)
         {
-            for (iX = startX; iX <= endX; iX++)
+            if (MapUtilityMethods.IsWall(mapIn, h.Q, h.R))
             {
-                if (!(iX == x && iY == y))
-                {
-                    if (MapUtilityMethods.IsWall(mapIn, iX, iY))
-                    {
-                        WallCounter += 1;
-                    }
-                }
+                Untraversable++;
             }
         }
-        return WallCounter;
+        return Untraversable;
     }
 
-    public void FloodMap(int[,] mapIn, int x, int y, int fillVal, int boundaryVal)
+    public void FloodMap(Hex[,] mapIn, int x, int y, int searchVal, int fillVal, int boundaryVal)
     {
-        int curVal;
-
-        if (mapIn[x, y] == 0)
+        if (mapIn[x, y].tileType == searchVal)
         {
-            curVal = mapIn[x, y];
-            if (curVal != boundaryVal && curVal != fillVal)
+            if (mapIn[x, y].tileType != boundaryVal && mapIn[x, y].tileType != fillVal)
             {
-                mapIn[x, y] = fillVal;
+                mapIn[x, y].tileType = fillVal;
 
-                FloodMap(mapIn, x + 1, y, fillVal, boundaryVal);
-                FloodMap(mapIn, x - 1, y, fillVal, boundaryVal);
-                FloodMap(mapIn, x, y + 1, fillVal, boundaryVal);
-                FloodMap(mapIn, x, y - 1, fillVal, boundaryVal);
+                Hex[] neighbours = mapIn[x, y].GetNeighbours();
+
+                foreach (var h in neighbours)
+                {
+                    FloodMap(mapIn, h.Q, h.R, searchVal, fillVal, boundaryVal);
+                }
             }
         }
     }
 
-    public bool CheckFlooding(int[,] mapIn, int floodValue, int value1, int value2 = 0)
+    public bool CheckFlooding(Hex[,] mapIn, int searchValue)
     {
-        Dictionary<int, int> TileCount = new Dictionary<int, int>();
+        int searchCount = 0;
+        int totalTiles = 0;
 
-        TileCount.Add(floodValue, 0);
-        TileCount.Add(value1, 0);
-        TileCount.Add(value2, 0);
-
-        foreach (int value in mapIn)
+        foreach (Hex h in mapIn)
         {
-            if (TileCount.ContainsKey(value))
-                TileCount[value]++;
-            else
-                TileCount.Add(value, 1);
-        }
-        if (TileCount.ContainsKey(floodValue))
-        {
-            int NeedsToBeMoreThan = ((TileCount[value1] + TileCount[value2]) / 5) * 3;
-            return TileCount[floodValue] > NeedsToBeMoreThan;
-        }
-        return false;
-    }
-
-    public int[,] DrainMap(int[,] mapIn, int convertThisValue, int intoThisValue, int everythingElse)
-    {
-        for (int u = 0; u < mapIn.GetLength(0); u++)
-        {
-            for (int v = 0; v < mapIn.GetLength(1); v++)
+            totalTiles++;
+            if (h.tileType == searchValue)
             {
-                if (mapIn[u, v] != convertThisValue)
-                {
-                    mapIn[u, v] = intoThisValue;
-                }
+                searchCount++;
             }
         }
-        for (int u = 0; u < mapIn.GetLength(0); u++)
+        int NeedsToBeMoreThan = (totalTiles / 10) * 3;
+        return searchCount > NeedsToBeMoreThan;
+    }
+
+    public Hex[,] DrainMap(Hex[,] mapIn, int convertThisValue, int intoThisValue, int everythingElse)
+    {
+        foreach (Hex t in mapIn)
         {
-            for (int v = 0; v < mapIn.GetLength(1); v++)
+            if (t.tileType == intoThisValue)
             {
-                if (mapIn[u, v] == convertThisValue)
-                {
-                    mapIn[u, v] = everythingElse;
-                }
+                t.tileType = everythingElse;
+            }
+        }
+        foreach (Hex t in mapIn)
+        {
+            if (t.tileType == convertThisValue)
+            {
+                t.tileType = intoThisValue;
             }
         }
         return mapIn;

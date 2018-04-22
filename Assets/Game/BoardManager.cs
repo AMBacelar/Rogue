@@ -12,7 +12,7 @@ public class BoardManager : MonoBehaviour
     public float xOffset = 0.939f;
     public float zOffset = 0.814f;
 
-    public int[,] HexGrid;
+    public Hex[,] HexGrid;
     Node[,] graph;
 
     public TileType[] tileTypes;
@@ -37,7 +37,7 @@ public class BoardManager : MonoBehaviour
         return new Vector3(xOffset * (x + y / 2f), 0, y * zOffset);
     }
 
-    public void LoadMap(int[,] mapIn)
+    public void LoadMap(Hex[,] mapIn)
     {
         int x = mapIn.GetLength(0);
         int y = mapIn.GetLength(1);
@@ -46,7 +46,7 @@ public class BoardManager : MonoBehaviour
         {
             for (column = 0; column < x; column++)
             {
-                TileType tt = tileTypes[HexGrid[column, row]];
+                TileType tt = tileTypes[HexGrid[column, row].tileType];
                 GameObject hexagon = (GameObject)Instantiate(tt.tileVisualPrefab, new Vector3(xOffset * (column + row / 2f), 0, row * zOffset), Quaternion.identity, this.transform);
 
                 hexagon.name = "Hex_" + column + "_" + row;

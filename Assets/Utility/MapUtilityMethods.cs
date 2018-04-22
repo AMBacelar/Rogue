@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public static class MapUtilityMethods
 {
-    public static bool IsOutOfBounds(int[,] mapIn, int x, int y)
+    public static bool IsOutOfBounds(Hex[,] mapIn, int x, int y)
     {
         if (x < 0 || y < 0)
         {
@@ -16,7 +16,7 @@ public static class MapUtilityMethods
         return false;
     }
 
-    public static bool IsWall(int[,] mapIn, int x, int y)
+    public static bool IsWall(Hex[,] mapIn, int x, int y)
     {
         // Consider out-of-bound a wall
         if (IsOutOfBounds(mapIn, x, y))
@@ -24,12 +24,12 @@ public static class MapUtilityMethods
             return true;
         }
 
-        if (mapIn[x, y] == 1)
+        if (mapIn[x, y].isWalkable == false)
         {
             return true;
         }
 
-        if (mapIn[x, y] == 0)
+        if (mapIn[x, y].isWalkable == true)
         {
             return false;
         }

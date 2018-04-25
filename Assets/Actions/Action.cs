@@ -4,7 +4,6 @@ using UnityEngine;
 
 public abstract class Action : MonoBehaviour
 {
-
     [SerializeField]
     private int _energyCost;
     public int EnergyCost

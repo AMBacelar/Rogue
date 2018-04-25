@@ -13,6 +13,7 @@ public class BoardManager : MonoBehaviour
     public float zOffset = 0.814f;
 
     public Hex[,] HexGrid;
+    private Dictionary<IntVector2, BoardPosition> dynamicPositions = new Dictionary<IntVector2, BoardPosition>();
     Node[,] graph;
 
     public TileType[] tileTypes;
@@ -32,6 +33,61 @@ public class BoardManager : MonoBehaviour
         LoadMap(HexGrid);
     }
 
+    public void UnregisterDynamicBoardPosition(BoardPosition toUnregister)
+    {
+        if (!dynamicPositions.ContainsKey(toUnregister.Position) || dynamicPositions[toUnregister.Position] != toUnregister)
+        {
+            Debug.LogError(toUnregister.name + "is not registered at it's board position.");
+            return;
+        }
+        dynamicPositions[toUnregister.Position] = null;
+    }
+
+    public void RegisterDynamicBoardPosition(BoardPosition toRegister)
+    {
+        if (MapUtilityMethods.IsOutOfBounds(HexGrid, toRegister.X, toRegister.Y))
+        {
+            Debug.LogError("Attempt to RegisterActor out of board boaunds");
+            return;
+        }
+
+        if (IsOccupied(toRegister.Position))
+        {
+            Debug.LogError("Attempt to RegisterActor occupied board position " + GetOccupied(toRegister.Position).name);
+            return;
+        }
+        dynamicPositions[toRegister.Position] = toRegister;
+    }
+
+    public bool IsOccupied(IntVector2 position)
+    {
+        return GetOccupied(position) != null;
+    }
+
+    public BoardPosition GetOccupied(IntVector2 position)
+    {
+        if (!dynamicPositions.ContainsKey(position))
+        {
+            return null;
+        }
+        return dynamicPositions[position];
+    }
+
+    public bool IsWithinBounds(int x, int y)
+    {
+        return !MapUtilityMethods.IsOutOfBounds(HexGrid, x, y);
+    }
+
+    public bool IsPassable(int x, int y)
+    {
+        return HexGrid[x, y].isWalkable && IsWithinBounds(x, y);
+    }
+
+    public bool IsPassable(IntVector2 position)
+    {
+        return IsPassable(position.X, position.Y);
+    }
+
     public Vector3 TileCoordToWorldCoord(int x, int y)
     {
         return new Vector3(xOffset * (x + y / 2f), 0, y * zOffset);
@@ -47,13 +103,11 @@ public class BoardManager : MonoBehaviour
             for (column = 0; column < x; column++)
             {
                 TileType tt = tileTypes[HexGrid[column, row].tileType];
-                GameObject hexagon = (GameObject)Instantiate(tt.tileVisualPrefab, new Vector3(xOffset * (column + row / 2f), 0, row * zOffset), Quaternion.identity, this.transform);
-
+                GameObject hexagon = (GameObject)Instantiate(tt.tileVisualPrefab, TileCoordToWorldCoord(column, row), Quaternion.identity, this.transform);
                 hexagon.name = "Hex_" + column + "_" + row;
                 hexagon.isStatic = true;
             }
         }
-
         StaticBatchingUtility.Combine(this.gameObject);
     }
 
@@ -61,5 +115,4 @@ public class BoardManager : MonoBehaviour
     {
         LoadMap(HexGrid);
     }
-
 }

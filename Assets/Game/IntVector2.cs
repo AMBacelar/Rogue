@@ -74,13 +74,17 @@ public class IntVector2
         return new IntVector2(p1._x - p2._x, p1._y - p2._y);
     }
 
-    public static IntVector2 UP = new IntVector2(0, 1);
+    public static IntVector2 NorthEast = new IntVector2(-1, 1);
 
-    public static IntVector2 DOWN = new IntVector2(0, -1);
+    public static IntVector2 NorthWest = new IntVector2(-1, 0);
 
-    public static IntVector2 LEFT = new IntVector2(-1, 0);
+    public static IntVector2 SouthEast = new IntVector2(1, 0);
 
-    public static IntVector2 RIGHT = new IntVector2(1, 0);
+    public static IntVector2 SouthWest = new IntVector2(1, -1);
+
+    public static IntVector2 East = new IntVector2(0, 1);
+
+    public static IntVector2 West = new IntVector2(0, -1);
 
     public static IntVector2 GetDirection(int xDirection, int yDirection)
     {

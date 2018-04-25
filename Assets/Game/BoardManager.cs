@@ -14,7 +14,6 @@ public class BoardManager : MonoBehaviour
 
     public Hex[,] HexGrid;
     private Dictionary<IntVector2, BoardPosition> dynamicPositions = new Dictionary<IntVector2, BoardPosition>();
-    Node[,] graph;
 
     public TileType[] tileTypes;
 

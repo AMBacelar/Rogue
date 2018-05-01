@@ -8,7 +8,7 @@ public class MapGenerator
     public Hex[,] GenerateMap(int width, int height)
     {
         Hex[,] tileGrid = new Hex[width, height];
-        tileGrid = RandomFillMap(tileGrid, 47);
+        tileGrid = RandomFillMap(tileGrid, 53);
         tileGrid = MakeCaverns(tileGrid);
         FloodMap(tileGrid, width / 2, height / 2, 0, 2, 1);
         tileGrid = DrainMap(tileGrid, 2, 0, 1);
@@ -55,6 +55,10 @@ public class MapGenerator
                     int mapMiddle = (y / 2);
 
                     if (row == mapMiddle)
+                    {
+                        mapIn[column, row] = new Hex(true, 0, column, row);
+                    }
+                    else if (row == mapMiddle+1)
                     {
                         mapIn[column, row] = new Hex(true, 0, column, row);
                     }
@@ -158,6 +162,7 @@ public class MapGenerator
                 searchCount++;
             }
         }
+        if (searchCount == 0) return false;
         int NeedsToBeMoreThan = (totalTiles / 10) * 3;
         return searchCount > NeedsToBeMoreThan;
     }

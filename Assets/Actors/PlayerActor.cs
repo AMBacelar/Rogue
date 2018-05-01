@@ -12,27 +12,27 @@ public class PlayerActor : Actor
         {
             return GetComponent<RestAction>();
         }
-        if (Input.GetKeyDown(KeyCode.W))
+        if (SwipeManager.Instance.IsSwiping(SwipeDirection.Left | SwipeDirection.Up))
         {
             return GetAttackAction(IntVector2.NorthWest);
         }
-        if (Input.GetKeyDown(KeyCode.A))
+        if (SwipeManager.Instance.IsSwiping(SwipeDirection.Left))
         {
             return GetAttackAction(IntVector2.West);
         }
-        if (Input.GetKeyDown(KeyCode.Z))
+        if (SwipeManager.Instance.IsSwiping(SwipeDirection.Left | SwipeDirection.Down))
         {
             return GetAttackAction(IntVector2.SouthWest);
         }
-        if (Input.GetKeyDown(KeyCode.X))
+        if (SwipeManager.Instance.IsSwiping(SwipeDirection.Right | SwipeDirection.Down))
         {
             return GetAttackAction(IntVector2.SouthEast);
         }
-        if (Input.GetKeyDown(KeyCode.D))
+        if (SwipeManager.Instance.IsSwiping(SwipeDirection.Right))
         {
             return GetAttackAction(IntVector2.East);
         }
-        if (Input.GetKeyDown(KeyCode.E))
+        if (SwipeManager.Instance.IsSwiping(SwipeDirection.Right | SwipeDirection.Up))
         {
             return GetAttackAction(IntVector2.NorthEast);
         }

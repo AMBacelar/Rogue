@@ -40,6 +40,7 @@ public class FeatureGenerator
                 Camera camera = new Camera();
                 //camera.transform.parent = player.transform;
                 GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                cube.GetComponent<Renderer>().material = Resources.Load("Materials/Player", typeof(Material)) as Material;
                 cube.transform.localScale = new Vector3(.5f, .5f, .5f);
                 cube.transform.position = new Vector3();
                 cube.transform.parent = player.transform;
@@ -58,6 +59,7 @@ public class FeatureGenerator
                 enemyGO.GetComponent<Destructible>().startingHP = 2;
                 enemyGO.GetComponent<BoardPosition>().Initialize(pos);
                 GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                sphere.GetComponent<Renderer>().material = Resources.Load("Materials/Enemy", typeof(Material)) as Material;
                 sphere.transform.localScale = new Vector3(.5f, .5f, .5f);
                 sphere.transform.position = new Vector3();
                 sphere.transform.parent = enemyGO.transform;

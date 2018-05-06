@@ -8,6 +8,8 @@ public class BoardManager : MonoBehaviour
     public static BoardManager instance = null;
     public int width;
     public int height;
+    public int depth = 1;
+    public int monsterDensity = 30;
 
     public float xOffset = 0.939f;
     public float zOffset = 0.814f;
@@ -18,6 +20,7 @@ public class BoardManager : MonoBehaviour
     public TileType[] tileTypes;
 
     MapGenerator generator = new MapGenerator();
+    FeatureGenerator featureGenerator = new FeatureGenerator();
 
     public void Initialise()
     {
@@ -30,6 +33,16 @@ public class BoardManager : MonoBehaviour
         Initialise();
         HexGrid = generator.GenerateMap(width, height);
         LoadMap(HexGrid);
+        Populate();
+    }
+
+    public void Populate()
+    {
+        foreach (var hex in HexGrid)
+        {
+            if (IsOccupied(new IntVector2(hex.Q, hex.R)) == false && IsPassable(hex.Q, hex.R))
+                featureGenerator.Populate(new IntVector2(hex.Q, hex.R), monsterDensity, depth);
+        }
     }
 
     public void UnregisterDynamicBoardPosition(BoardPosition toUnregister)
@@ -102,12 +115,12 @@ public class BoardManager : MonoBehaviour
             for (column = 0; column < x; column++)
             {
                 TileType tt = tileTypes[HexGrid[column, row].tileType];
-                GameObject hexagon = (GameObject)Instantiate(tt.tileVisualPrefab, TileCoordToWorldCoord(column, row), Quaternion.identity, this.transform);
+                GameObject hexagon = Instantiate(tt.tileVisualPrefab, TileCoordToWorldCoord(column, row), Quaternion.identity, transform);
                 hexagon.name = "Hex_" + column + "_" + row;
                 hexagon.isStatic = true;
             }
         }
-        StaticBatchingUtility.Combine(this.gameObject);
+        StaticBatchingUtility.Combine(gameObject);
     }
 
     public void LoadMap()

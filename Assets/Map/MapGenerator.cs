@@ -14,12 +14,7 @@ public class MapGenerator
         tileGrid = DrainMap(tileGrid, 2, 0, 1);
         if (CheckFlooding(tileGrid, 0) == false)
         {
-            Debug.Log("aww Shucks");
             GenerateMap(width, height);
-        }
-        else
-        {
-            Debug.Log("success!");
         }
         return tileGrid;
     }
@@ -58,7 +53,7 @@ public class MapGenerator
                     {
                         mapIn[column, row] = new Hex(true, 0, column, row);
                     }
-                    else if (row == mapMiddle+1)
+                    else if (row == mapMiddle + 1)
                     {
                         mapIn[column, row] = new Hex(true, 0, column, row);
                     }

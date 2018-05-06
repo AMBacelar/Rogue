@@ -17,4 +17,11 @@ public class MapGeneratorTest
         Assert.AreEqual(false, generator.RandomPercent(percent, 48));
         Assert.AreEqual(false, generator.RandomPercent(percent, 80));
     }
+
+    [Test]
+    public void PlaceWallLogicTest()
+    {
+
+    }
+
 }

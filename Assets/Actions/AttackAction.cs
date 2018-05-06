@@ -37,7 +37,7 @@ public class AttackAction : Action
     {
         if (state == ActionState.EXECUTING)
         {
-            Debug.Log(name + " performed attack action.");
+            //Debug.Log(name + " performed attack action.");
             weapon.UseWeapon();
             state = ActionState.FINISHED;
         }

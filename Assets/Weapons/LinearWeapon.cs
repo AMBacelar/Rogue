@@ -20,13 +20,13 @@ public class LinearWeapon : Weapon
         }
         if (targetPostion == null)
         {
-            Debug.Log("Nothing in that direction.");
+            //Debug.Log("Nothing in that direction.");
             return false;
         }
         target = targetPostion.GetComponent<Destructible>();
         if (target == null)
         {
-            Debug.Log("Something indestructible in the way.");
+            //Debug.Log("Something indestructible in the way.");
             return false;
         }
         return true;

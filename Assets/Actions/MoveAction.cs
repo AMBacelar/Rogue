@@ -31,7 +31,6 @@ public class MoveAction : Action
             //Temporary movement.
             transform.Translate(BoardManager.instance.TileCoordToWorldCoord(direction.X, direction.Y));
             state = ActionState.FINISHED;
-            Debug.Log(name + " performed move action.");
         }
     }
 

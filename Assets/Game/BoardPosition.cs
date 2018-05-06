@@ -22,17 +22,32 @@ public class BoardPosition : MonoBehaviour
         get { return _position.Y; }
     }
 
-    // Use this for initialization
     void Start()
     {
-        BoardManager.instance.RegisterDynamicBoardPosition(this);
+        Register();
+    }
+
+    public void Initialize(IntVector2 pos)
+    {
+        _position = pos;
+    }
+
+    public void Initialize(int x, int y)
+    {
+        Initialize(new IntVector2(x, y));
+        Debug.Log(_position);
     }
 
     public void TeleportTo(int x, int y)
     {
-        BoardManager.instance.UnregisterDynamicBoardPosition(this);
+        Unregister();
         _position = new IntVector2(x, y);
-        BoardManager.instance.RegisterDynamicBoardPosition(this);
+        Register();
+    }
+
+    public void TeleportTo(IntVector2 pos)
+    {
+        TeleportTo(pos.X, pos.Y);
     }
 
     public void MoveDirection(IntVector2 direction)
@@ -63,6 +78,11 @@ public class BoardPosition : MonoBehaviour
     public bool IsAdjacent(BoardPosition to)
     {
         return ManhattanDistance(to) == 1;
+    }
+
+    public void Register()
+    {
+        BoardManager.instance.RegisterDynamicBoardPosition(this);
     }
 
     public void Unregister()

@@ -10,7 +10,6 @@ public class RestAction : Action
     {
         GetComponent<Actor>().GainEnergy(energyGain);
         state = ActionState.FINISHED;
-        Debug.Log(name + " performed rest action.");
         return ActionResult.SUCCESS;
     }
 }

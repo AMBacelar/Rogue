@@ -17,6 +17,8 @@ public class Hex
     public static readonly Hex East = new Hex(0, -1, 1);
     public static readonly Hex West = new Hex(0, 1, -1);
 
+    #region Constructors
+
     public Hex(bool _isWalkable, int _tileType, int q, int r)
     {
         this.tileType = _tileType;
@@ -47,11 +49,15 @@ public class Hex
     // Q + R + S = 0
     // S = -(Q + R)
 
+    #endregion
+
     public int Q;  // Column
     public int R;  // Row
     public int S;
     public bool isWalkable;
     public int tileType;
+
+    #region Class Interface
 
     public static bool operator ==(Hex a, Hex b)
     {
@@ -78,6 +84,16 @@ public class Hex
         return new Hex(a.isWalkable, a.tileType, a.Q * k, a.R * k, a.S * k);
     }
 
+    public static int Distance(Hex lhs, Hex rhs)
+    {
+        var doubleDistance =
+            Math.Abs(lhs.Q - rhs.Q) +
+            Math.Abs(lhs.R - rhs.R) +
+            Math.Abs(lhs.S - rhs.S);
+
+        return doubleDistance / 2;
+    }
+
     Hex[] neighbours;
 
     public Hex[] GetNeighbours()
@@ -98,4 +114,28 @@ public class Hex
 
         return this.neighbours;
     }
+
+    #endregion
+
+    #region Overrides
+
+    public override int GetHashCode()
+    {
+        return ((Q * 17) << 8) * ((R * 29) << 4) * S;
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (!(obj is Hex))
+            return false;
+
+        return this.Equals((Hex)obj);
+    }
+
+    public override string ToString()
+    {
+        return base.ToString() + "Hex - Q: " + Q + " R: " + R + " S: " + S;
+    }
+
+    #endregion
 }

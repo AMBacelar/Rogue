@@ -21,7 +21,7 @@ public class FeatureGenerator
         // if player hasn't been placed, place player
 
         // place a monster
-        if (Random.Range(0, 5000) < monsterDensity + (depth / 4))
+        if (Random.Range(0, 3000) < monsterDensity + (depth / 4))
         {
             if (playerPlaced == false)
             {
@@ -36,9 +36,6 @@ public class FeatureGenerator
                 player.AddComponent<Destructible>();
                 player.GetComponent<Destructible>().startingHP = 12;
                 player.GetComponent<BoardPosition>().Initialize(pos);
-                //player.GetComponent<AttackAction>().EnergyCost = 1;
-                Camera camera = new Camera();
-                //camera.transform.parent = player.transform;
                 GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 cube.GetComponent<Renderer>().material = Resources.Load("Materials/Player", typeof(Material)) as Material;
                 cube.transform.localScale = new Vector3(.5f, .5f, .5f);
@@ -47,7 +44,6 @@ public class FeatureGenerator
                 player.transform.position = BoardManager.instance.TileCoordToWorldCoord(pos.X, pos.Y) + new Vector3(0, .29f, 0);
 
                 playerPlaced = true;
-
             }
             else
             {

@@ -35,7 +35,6 @@ public class BoardPosition : MonoBehaviour
     public void Initialize(int x, int y)
     {
         Initialize(new IntVector2(x, y));
-        Debug.Log(_position);
     }
 
     public void TeleportTo(int x, int y)

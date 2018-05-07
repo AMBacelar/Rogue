@@ -15,6 +15,7 @@ public class BoardManager : MonoBehaviour
     public float zOffset = 0.814f;
 
     public Hex[,] HexGrid;
+    public Node[,] graph;
     private Dictionary<IntVector2, BoardPosition> dynamicPositions = new Dictionary<IntVector2, BoardPosition>();
 
     public TileType[] tileTypes;
@@ -98,6 +99,16 @@ public class BoardManager : MonoBehaviour
     public bool IsPassable(IntVector2 position)
     {
         return IsPassable(position.X, position.Y);
+    }
+
+    public Hex GetHex(int x, int y)
+    {
+        return HexGrid[x, y];
+    }
+
+    public Hex GetHex(IntVector2 pos)
+    {
+        return GetHex(pos.X, pos.Y);
     }
 
     public Vector3 TileCoordToWorldCoord(int x, int y)

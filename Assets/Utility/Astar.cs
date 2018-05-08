@@ -5,133 +5,120 @@ using UnityEngine;
 public static class Astar
 {
 
-    public static Node[,] generateGraph(Hex[,] mapIn)
-    {
-        int x = mapIn.GetLength(0);
-        int y = mapIn.GetLength(1);
-        Node[,] graph = new Node[x, y];
+	public static Node[,] GenerateGraph(Hex[,] mapIn)
+	{
+		int x = mapIn.GetLength(0);
+		int y = mapIn.GetLength(1);
+		Node[,] graph = new Node[x, y];
 
-        // populate the graph
-        foreach (Hex hex in mapIn)
-        {
-            graph[hex.Q, hex.R] = new Node(hex.Q, hex.R);
-        }
-        // initialize the neighbours for each node
-        foreach (Hex hex in mapIn)
-        {
-            Hex[] neighbours = hex.GetNeighbours();
-            foreach (Hex neighbour in neighbours)
-            {
-                if (BoardManager.instance.IsWithinBounds(neighbour.Q, neighbour.R))
-                {
-                    graph[hex.Q, hex.R].neighbours.Add(graph[neighbour.Q, neighbour.R]);
-                }
-            }
-        }
-        return graph;
-    }
+		// populate the graph
+		foreach (Hex hex in mapIn)
+		{
+			graph[hex.Q, hex.R] = new Node(hex.Q, hex.R);
+		}
+		// initialize the neighbours for each node
+		foreach (Hex hex in mapIn)
+		{
+			Hex[] neighbours = hex.GetNeighbours();
+			foreach (Hex neighbour in neighbours)
+			{
+				if (BoardManager.instance.IsWithinBounds(neighbour.Q, neighbour.R))
+				{
+					graph[hex.Q, hex.R].neighbours.Add(graph[neighbour.Q, neighbour.R]);
+				}
+			}
+		}
+		return graph;
+	}
 
-    public static float CostToEnterTile(int targetX, int targetY)
-    {
-        Hex hex = BoardManager.instance.GetHex(targetX, targetY);
+	public static float CostToEnterTile(int targetX, int targetY)
+	{
+		Hex hex = BoardManager.instance.GetHex(targetX, targetY);
 
-        if (hex.isWalkable == false)
-            return Mathf.Infinity;
+		if (hex.isWalkable == false)
+			return Mathf.Infinity;
 
-        float cost = BoardManager.instance.tileTypes[hex.tileType].movementCost;
+		float cost = BoardManager.instance.tileTypes[hex.tileType].movementCost;
 
-        return cost;
+		return cost;
 
-    }
+	}
 
-    #region Pathfinding
+	#region Pathfinding
 
-    public static IEnumerator GeneratePath(BoardPosition from, BoardPosition to, EnemyActor actor)
-    {
-        // Clear current path
-        actor.CurrentPath = null;
+	public static List<Node> GeneratePath(BoardPosition from, BoardPosition to, Node[,] graph)
+	{
+		Dictionary<Node, float> dist = new Dictionary<Node, float>();
+		Dictionary<Node, Node> prev = new Dictionary<Node, Node>();
 
-        Dictionary<Node, float> dist = new Dictionary<Node, float>();
-        Dictionary<Node, Node> prev = new Dictionary<Node, Node>();
+		List<Node> unvisited = new List<Node>();
 
-        List<Node> unvisited = new List<Node>();
+		Node source = graph[from.X, from.Y];
+		Node target = graph[to.X, to.Y];
 
-        Node source = BoardManager.instance.graph[from.X, from.Y];
-        Node target = BoardManager.instance.graph[to.X, to.Y];
+		dist[source] = 0;
+		prev[source] = null;
 
-        dist[source] = 0;
-        prev[source] = null;
+		foreach (Node v in graph)
+		{
+			// TODO Consider replacing this part with a flood fill, right now it's unnecesary, because every tile is reachable
+			if (v != source)
+			{
+				dist[v] = Mathf.Infinity;
+				prev[v] = null;
+			}
+			unvisited.Add(v);
+		}
 
-        foreach (Node v in BoardManager.instance.graph)
-        {
+		while (unvisited.Count > 0)
+		{
+			Node u = null;
 
-            // TODO Consider replacing this part with a flood fill, right now it's unnecesary, because every tile is reachable
-            if (v != source)
-            {
-                dist[v] = Mathf.Infinity;
-                prev[v] = null;
-            }
+			foreach (Node possibleU in unvisited)
+			{
+				if (u == null || dist[possibleU] < dist[u])
+				{
+					u = possibleU;
+				}
+			}
 
-            unvisited.Add(v);
-        }
+			if (u == target)
+			{
+				break;
+			}
 
-        while (unvisited.Count > 0)
-        {
-            Node u = null;
+			unvisited.Remove(u);
 
-            foreach (Node possibleU in unvisited)
-            {
-                if (u == null || dist[possibleU] < dist[u])
-                {
-                    u = possibleU;
-                }
-            }
+			foreach (Node v in u.neighbours)
+			{
+				float alt = dist[u] + CostToEnterTile(v.x, v.y) + BoardManager.instance.Heuristics(v, target);
+				if (alt < dist[v])
+				{
+					dist[v] = alt;
+					prev[v] = u;
+				}
 
-            if (u == target)
-            {
-                break;
-            }
+			}
+		}
+		if (prev[target] == null)
+		{
+			Debug.Log("No Path Found");
+			return null;
+		}
+		List<Node> currentPath = new List<Node>();
 
-            unvisited.Remove(u);
+		Node curr = target;
 
-            int batch = 0;
-            foreach (Node v in u.neighbours)
-            {
-                batch++;
-                if (batch == 500)
-                {
-                    yield return new WaitForSeconds(0);
-                    batch = 0;
-                }
-                float alt = dist[u] + CostToEnterTile(v.x, v.y);
-                if (alt < dist[v])
-                {
-                    dist[v] = alt;
-                    prev[v] = u;
-                }
+		while (curr != null)
+		{
+			currentPath.Add(curr);
+			curr = prev[curr];
+		}
 
-            }
-        }
-        if (prev[target] == null)
-        {
-            yield break;
-        }
-        List<Node> currentPath = new List<Node>();
+		currentPath.Reverse();
 
-        Node curr = target;
-
-        while (curr != null)
-        {
-            currentPath.Add(curr);
-            curr = prev[curr];
-        }
-
-        currentPath.Reverse();
-
-        actor.CurrentPath = currentPath;
-
-        yield break;
-    }
-    #endregion
+		return currentPath;
+	}
+	#endregion
 
 }

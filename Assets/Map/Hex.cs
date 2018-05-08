@@ -129,12 +129,12 @@ public class Hex
         if (!(obj is Hex))
             return false;
 
-        return this.Equals((Hex)obj);
+        return Equals((Hex)obj);
     }
 
     public override string ToString()
     {
-        return base.ToString() + "Hex - Q: " + Q + " R: " + R + " S: " + S;
+        return "Hex - Q: " + Q + " R: " + R + " S: " + S;
     }
 
     #endregion

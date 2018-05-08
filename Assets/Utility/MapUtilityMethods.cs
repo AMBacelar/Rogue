@@ -35,4 +35,9 @@ public static class MapUtilityMethods
         }
         return false;
     }
+
+    public static int Heuristics(Hex a, Hex b)
+    {
+        return Hex.Distance(a, b);
+    }
 }

@@ -5,35 +5,33 @@ using System;
 [RequireComponent(typeof(BoardPosition))]
 public class LinearWeapon : Weapon
 {
-    public int range;
+	public int range;
 
-    public override bool AcquireTarget(IntVector2 direction)
-    {
-        int i = 1;
-        BoardPosition position = GetComponent<BoardPosition>();
-        BoardPosition targetPostion = null;
-        while (targetPostion == null && i <= range)
-        {
-            targetPostion = BoardManager.instance.GetOccupied(new IntVector2(position.X + direction.X * i, position.Y + direction.Y * i));
-            i++;
+	public override bool AcquireTarget(IntVector2 direction)
+	{
+		int i = 1;
+		BoardPosition position = GetComponent<BoardPosition>();
+		BoardPosition targetPostion = null;
+		while (targetPostion == null && i <= range)
+		{
+			targetPostion = BoardManager.instance.GetOccupied(new IntVector2(position.X + direction.X * i, position.Y + direction.Y * i));
+			i++;
+		}
+		if (targetPostion == null)
+		{
+			return false;
+		}
+		target = targetPostion.GetComponent<Destructible>();
+		if (target == null)
+		{
+			//Debug.Log("Something indestructible in the way.");
+			return false;
+		}
+		return true;
+	}
 
-        }
-        if (targetPostion == null)
-        {
-            //Debug.Log("Nothing in that direction.");
-            return false;
-        }
-        target = targetPostion.GetComponent<Destructible>();
-        if (target == null)
-        {
-            //Debug.Log("Something indestructible in the way.");
-            return false;
-        }
-        return true;
-    }
-
-    public override void UseWeapon()
-    {
-        target.ApplyDamage(damage);
-    }
+	public override void UseWeapon()
+	{
+		target.ApplyDamage(damage);
+	}
 }

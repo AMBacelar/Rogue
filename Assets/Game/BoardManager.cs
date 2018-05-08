@@ -33,6 +33,7 @@ public class BoardManager : MonoBehaviour
     {
         Initialise();
         HexGrid = generator.GenerateMap(width, height);
+        graph = Astar.GenerateGraph(HexGrid);
         LoadMap(HexGrid);
         Populate();
     }
@@ -72,6 +73,14 @@ public class BoardManager : MonoBehaviour
         dynamicPositions[toRegister.Position] = toRegister;
     }
 
+    public bool IsOccupied(Hex position){
+        return IsOccupied(new IntVector2(position.Q,position.R));
+    }
+
+    public bool IsOccupied(Node node){
+        return IsOccupied(new IntVector2(node.x,node.y));
+    }
+
     public bool IsOccupied(IntVector2 position)
     {
         return GetOccupied(position) != null;
@@ -93,7 +102,7 @@ public class BoardManager : MonoBehaviour
 
     public bool IsPassable(int x, int y)
     {
-        return HexGrid[x, y].isWalkable && IsWithinBounds(x, y);
+        return HexGrid[x, y].isWalkable && IsWithinBounds(x, y) && HexGrid[x, y].tileType == 0;
     }
 
     public bool IsPassable(IntVector2 position)
@@ -114,6 +123,26 @@ public class BoardManager : MonoBehaviour
     public Vector3 TileCoordToWorldCoord(int x, int y)
     {
         return new Vector3(xOffset * (x + y / 2f), 0, y * zOffset);
+    }
+
+    public int Heuristics(Node a, Node b)
+    {
+        return Heuristics(new Hex(a.x, a.y), new Hex(b.x, b.y));
+    }
+
+    public int Heuristics(IntVector2 a, IntVector2 b)
+    {
+        return Heuristics(new Hex(a.X, a.Y), new Hex(b.X, b.Y));
+    }
+
+    public int Heuristics(BoardPosition a, BoardPosition b)
+    {
+        return Heuristics(new Hex(a.X, a.Y), new Hex(b.X, b.Y));
+    }
+
+    public int Heuristics(Hex a, Hex b)
+    {
+        return MapUtilityMethods.Heuristics(a, b);
     }
 
     public void LoadMap(Hex[,] mapIn)

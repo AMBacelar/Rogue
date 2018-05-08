@@ -142,8 +142,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6081027a3629948c5b83d0df64f32cce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 100
-  height: 50
+  width: 60
+  height: 30
   depth: 1
   monsterDensity: 30
   xOffset: 0.939

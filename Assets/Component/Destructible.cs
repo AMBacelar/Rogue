@@ -4,13 +4,13 @@ using System.Collections;
 public class Destructible : MonoBehaviour
 {
 
-	public int startingHP;
+	public int StartingHP;
 	int currentHP;
+	public int CurrentHP { get { return currentHP; } }
 
 	void Start()
 	{
-		currentHP = startingHP;
-		Debug.Log(name + " has woken up, and has " + currentHP + " health");
+		currentHP = StartingHP;
 	}
 
 	public void ApplyDamage(int damage)
@@ -25,7 +25,12 @@ public class Destructible : MonoBehaviour
 
 	public void Die()
 	{
-		gameObject.SendMessage("Unregister");
+		GetComponent<BoardPosition>().Unregister();
+		GetComponent<Actor>().Unregister();
+		if (GetComponent<PlayerActor>())
+		{
+			GameObject.Find("Game").GetComponent<LevelManager>().LoadScene("03_Lose");
+		}
 		Destroy(gameObject);
 	}
 }

@@ -43,7 +43,7 @@ public class AttackAction : Action
 		}
 	}
 
-	private bool CanPerform()
+	bool CanPerform()
 	{
 		weapon = GetComponent<Weapon>();
 		return weapon.AcquireTarget(direction);

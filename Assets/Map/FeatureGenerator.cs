@@ -14,13 +14,12 @@ public class FeatureGenerator
     * do you need stairs going up
     * has the player been placed
     * how dense should the map be? moster-wise?
+    * 
+    * Create Factory for Monsters
     */
 
 	public void Populate(IntVector2 pos, int monsterDensity, int depth)
 	{
-		// if player hasn't been placed, place player
-
-		// place a monster
 		if (Random.Range(0, 3000) < monsterDensity + (depth / 4))
 		{
 			if (playerPlaced == false)
@@ -33,8 +32,7 @@ public class FeatureGenerator
 				player.GetComponent<LinearWeapon>().damage = 1;
 				player.AddComponent<PlayerActor>();
 				player.AddComponent<MoveAction>();
-				player.AddComponent<Destructible>();
-				player.GetComponent<Destructible>().startingHP = 12;
+				player.GetComponent<Destructible>().StartingHP = 12;
 				player.GetComponent<BoardPosition>().Initialize(pos);
 				GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
 				cube.GetComponent<Renderer>().material = Resources.Load("Materials/Player", typeof(Material)) as Material;
@@ -58,7 +56,7 @@ public class FeatureGenerator
 				enemyGO.GetComponent<LinearWeapon>().damage = 1;
 				enemyGO.AddComponent<AttackAction>();
 				enemyGO.AddComponent<Destructible>();
-				enemyGO.GetComponent<Destructible>().startingHP = 2;
+				enemyGO.GetComponent<Destructible>().StartingHP = 2;
 				enemyGO.GetComponent<BoardPosition>().Initialize(pos);
 				GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
 				sphere.GetComponent<Renderer>().material = Resources.Load("Materials/Enemy", typeof(Material)) as Material;
@@ -69,5 +67,4 @@ public class FeatureGenerator
 			}
 		}
 	}
-
 }

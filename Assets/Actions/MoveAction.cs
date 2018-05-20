@@ -5,37 +5,38 @@ using System.Collections;
 public class MoveAction : Action
 {
 
-    public IntVector2 direction;
+	public IntVector2 direction;
 
-    override public ActionResult Perform()
-    {
-        if (!GetComponent<Actor>().HasEnergyToActivate(EnergyCost))
-        {
-            return ActionResult.FAILURE(GetComponent<RestAction>());
-        }
-        if (!CanPerform())
-        {
-            return ActionResult.FAILURE(GetComponent<RestAction>());
-        }
-        state = ActionState.EXECUTING;
-        return ActionResult.SUCCESS;
+	override public ActionResult Perform()
+	{
+		if (!GetComponent<Actor>().HasEnergyToActivate(EnergyCost))
+		{
+			return ActionResult.FAILURE(GetComponent<RestAction>());
+		}
+		if (!CanPerform())
+		{
+			return ActionResult.FAILURE(GetComponent<RestAction>());
+		}
+		state = ActionState.EXECUTING;
+		return ActionResult.SUCCESS;
 
-    }
+	}
 
-    void Update()
-    {
-        if (state == ActionState.EXECUTING)
-        {
-            BoardPosition boardPosition = GetComponent<BoardPosition>();
-            boardPosition.MoveDirection(direction);
-            //Temporary movement.
-            transform.Translate(BoardManager.instance.TileCoordToWorldCoord(direction.X, direction.Y));
-            state = ActionState.FINISHED;
-        }
-    }
+	void Update()
+	{
+		if (state == ActionState.EXECUTING)
+		{
+			BoardPosition boardPosition = GetComponent<BoardPosition>();
+			boardPosition.MoveDirection(direction);
+			//Temporary movement.
+			transform.Translate(BoardManager.instance.TileCoordToWorldCoord(direction.X, direction.Y));
 
-    private bool CanPerform()
-    {
-        return GetComponent<BoardPosition>().CanMoveDirection(direction);
-    }
+			state = ActionState.FINISHED;
+		}
+	}
+
+	private bool CanPerform()
+	{
+		return GetComponent<BoardPosition>().CanMoveDirection(direction);
+	}
 }

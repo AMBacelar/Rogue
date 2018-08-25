@@ -29,11 +29,24 @@ public class MoveAction : Action
 			BoardPosition boardPosition = GetComponent<BoardPosition>();
 			boardPosition.MoveDirection(direction);
 			//Temporary movement.
-			transform.Translate(BoardManager.instance.TileCoordToWorldCoord(direction.X, direction.Y));
+
+            StartCoroutine(smooth_move(BoardManager.instance.TileCoordToWorldCoord(direction.X, direction.Y), 0.1f)); //Calling the coroutine.
 
 			state = ActionState.FINISHED;
 		}
 	}
+
+    IEnumerator smooth_move(Vector3 direction, float time)
+    {
+        float elapsedTime = 0;
+        Vector3 startingPos = transform.position; //Starting position.
+        while (elapsedTime < time)
+        {
+            transform.position = Vector3.Lerp(startingPos, (startingPos + direction), (elapsedTime / time));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+    }
 
 	private bool CanPerform()
 	{

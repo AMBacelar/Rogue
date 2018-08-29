@@ -46,7 +46,7 @@ public class IntVector2
         return _x * 31 + _y;
     }
 
-    public static bool operator ==(IntVector2 p1, IntVector2 p2)
+    public static bool operator == (IntVector2 p1, IntVector2 p2)
     {
         if (ReferenceEquals(p1, p2))
         {
@@ -59,17 +59,17 @@ public class IntVector2
         return p1.Equals(p2);
     }
 
-    public static bool operator !=(IntVector2 p1, IntVector2 p2)
+    public static bool operator != (IntVector2 p1, IntVector2 p2)
     {
         return !(p1 == p2);
     }
 
-    public static IntVector2 operator +(IntVector2 p1, IntVector2 p2)
+    public static IntVector2 operator + (IntVector2 p1, IntVector2 p2)
     {
         return new IntVector2(p1._x + p2._x, p1._y + p2._y);
     }
 
-    public static IntVector2 operator -(IntVector2 p1, IntVector2 p2)
+    public static IntVector2 operator - (IntVector2 p1, IntVector2 p2)
     {
         return new IntVector2(p1._x - p2._x, p1._y - p2._y);
     }

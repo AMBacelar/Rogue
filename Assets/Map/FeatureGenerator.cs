@@ -39,7 +39,7 @@ public class FeatureGenerator
 				cube.transform.localScale = new Vector3(.5f, .5f, .5f);
 				cube.transform.position = new Vector3();
 				cube.transform.parent = player.transform;
-				player.transform.position = BoardManager.instance.TileCoordToWorldCoord(pos.X, pos.Y) + new Vector3(0, .29f, 0);
+				player.transform.position = BoardManager.instance.TileCoordToWorldCoord(pos.X, pos.Y);
 
 				playerPlaced = true;
 			}
@@ -63,7 +63,7 @@ public class FeatureGenerator
 				sphere.transform.localScale = new Vector3(.5f, .5f, .5f);
 				sphere.transform.position = new Vector3();
 				sphere.transform.parent = enemyGO.transform;
-				enemyGO.transform.position = BoardManager.instance.TileCoordToWorldCoord(pos.X, pos.Y) + new Vector3(0, .29f, 0);
+				enemyGO.transform.position = BoardManager.instance.TileCoordToWorldCoord(pos.X, pos.Y);
 			}
 		}
 	}

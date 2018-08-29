@@ -164,7 +164,7 @@ public class BoardManager : MonoBehaviour
 			for (column = 0; column < x; column++)
 			{
 				TileType tt = tileTypes[HexGrid[column, row].tileType];
-				GameObject hexagon = Instantiate(tt.tileVisualPrefab, TileCoordToWorldCoord(column, row), Quaternion.identity, transform);
+                GameObject hexagon = Instantiate(tt.tileVisualPrefab, TileCoordToWorldCoord(column, row) - new Vector3(0, .29f, 0), Quaternion.identity, transform);
 				hexagon.name = "Hex_" + column + "_" + row;
 				hexagon.isStatic = true;
 			}

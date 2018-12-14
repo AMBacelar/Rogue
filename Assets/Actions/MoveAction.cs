@@ -30,7 +30,8 @@ public class MoveAction : Action
 			boardPosition.MoveDirection(direction);
 			//Temporary movement.
 
-            StartCoroutine(smooth_move(BoardManager.instance.TileCoordToWorldCoord(direction.X, direction.Y), 0.1f)); //Calling the coroutine.
+            transform.Translate(BoardManager.instance.TileCoordToWorldCoord(direction.X, direction.Y));
+            //StartCoroutine(smooth_move(BoardManager.instance.TileCoordToWorldCoord(direction.X, direction.Y), 0.1f)); //Calling the coroutine.
 
 			state = ActionState.FINISHED;
 		}
